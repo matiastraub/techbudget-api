@@ -108,7 +108,9 @@ const uploadPath = path.join(__dirname, "public/uploads");
 app.use(`${config.apiUrl}/public/uploads`, express.static(uploadPath));
 
 app.use("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../API/public/index.html"));
+  const actualDir = path.basename(path.resolve());
+  const indexPath = path.join(__dirname, `../${actualDir}/public/index.html`);
+  res.sendFile(indexPath);
 });
 
 app.use(errorHandler);
