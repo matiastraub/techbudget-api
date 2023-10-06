@@ -1,0 +1,17 @@
+{
+    "env": {
+        "browser": false,
+        "commonjs": true,
+        "es2021": true
+    },
+    "extends": ["airbnb", "airbnb/hooks"],
+    "overrides": [
+    ],
+    "parserOptions": {
+        "ecmaVersion": "latest"
+    },
+    "rules": {
+        "linebreak-style" : 0,
+        "quotes": [2, "single", { "avoidEscape": true }]
+    }
+}

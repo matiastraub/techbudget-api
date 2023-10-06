@@ -1,0 +1,745 @@
+{
+	"info": {
+		"_postman_id": "6df22ea7-8668-4793-9758-3d21f04444c4",
+		"name": "Tech Budget API",
+		"description": "Features:\n\n- Track your expenses\n- Track your stocks (testing)\n    \n- Track your crypto (soon)\n    \n- Create your budget plan\n- Upload expenses in Excel format, upload picture",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "30170069"
+	},
+	"item": [
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Create User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\" : \"matias.traub@gogogol.com\",\r\n    \"password\" : \"123456\",\r\n    \"address\": \"1000 Rue Saint-Laurent\",\r\n    \"city\" : \"Montreal\"\r\n}"
+						},
+						"url": {
+							"raw": "{{url}}/users",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/users/",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"users",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User by Id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"TOKEN\", pm.response.json().token)"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/users/6467a58da61ef25dc6267f73",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"users",
+								"6467a58da61ef25dc6267f73"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "        {\r\n            \"name\": \"Test fin last\"\r\n        }"
+						},
+						"url": {
+							"raw": "{{url}}/users/645d04726bc43c0d80b3a8a5",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"users",
+								"645d04726bc43c0d80b3a8a5"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User by Radius",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/users/radius/H2J 2Y3/5",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"users",
+								"radius",
+								"H2J 2Y3",
+								"5"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/users/645d459233032634748c71ba",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"users",
+								"645d459233032634748c71ba"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Photo",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Users/matias.traub_amaris/Pictures/eddie-swt.png"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/users/64ac257905f01b5beb0863d7/photo",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"users",
+								"64ac257905f01b5beb0863d7",
+								"photo"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Photo",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/public/uploads/eddie-swt.png_64ac257905f01b5beb0863d7_1689349264840.png",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"public",
+								"uploads",
+								"eddie-swt.png_64ac257905f01b5beb0863d7_1689349264840.png"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all files by User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/users/64ac257905f01b5beb0863d7/files",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"users",
+								"64ac257905f01b5beb0863d7",
+								"files"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Transaction file",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n    {\r\n        \"date\": \"2023-06-21T04:00:00.000Z\",\r\n        \"name\": \"Metro\",\r\n        \"source\": \"Travel\",\r\n        \"cost\": \"Var\",\r\n        \"category\": \"Food\",\r\n        \"amount\": 29.62\r\n    },\r\n    {\r\n        \"date\": \"2023-06-21T04:00:00.000Z\",\r\n        \"name\": \"St Sacrement\",\r\n        \"description\": \"AWS\",\r\n        \"source\": \"Travel\",\r\n        \"cost\": \"Var\",\r\n        \"category\": \"Fun\",\r\n        \"amount\": 26.25\r\n    },\r\n    {\r\n        \"date\": \"2023-06-22T04:00:00.000Z\",\r\n        \"name\": \"Fido\",\r\n        \"source\": \"Travel\",\r\n        \"cost\": \"Fix\",\r\n        \"category\": \"Fido\",\r\n        \"amount\": 39.62\r\n    },\r\n    {\r\n        \"date\": \"2023-06-22T04:00:00.000Z\",\r\n        \"name\": \"Depanneur 7 jours\",\r\n        \"description\": \"Beers\",\r\n        \"source\": \"Travel\",\r\n        \"cost\": \"Var\",\r\n        \"category\": \"Beer\",\r\n        \"amount\": 16.11\r\n    },\r\n    {\r\n        \"date\": \"2023-06-22T04:00:00.000Z\",\r\n        \"name\": \"Dollarama\",\r\n        \"description\": \"soap,\",\r\n        \"source\": \"Travel\",\r\n        \"cost\": \"Var\",\r\n        \"category\": \"Washroom\",\r\n        \"amount\": 29.32\r\n    },\r\n    {\r\n        \"date\": \"2023-06-23T04:00:00.000Z\",\r\n        \"name\": \"Skip the dishes\",\r\n        \"source\": \"Travel\",\r\n        \"cost\": \"Var\",\r\n        \"category\": \"Dining\",\r\n        \"amount\": 31.03\r\n    },\r\n    {\r\n        \"date\": \"2023-06-25T04:00:00.000Z\",\r\n        \"name\": \"Quai des brumes\",\r\n        \"source\": \"Travel\",\r\n        \"cost\": \"Var\",\r\n        \"category\": \"Fun\",\r\n        \"amount\": 10.9\r\n    },\r\n    {\r\n        \"date\": \"2023-06-25T04:00:00.000Z\",\r\n        \"name\": \"Quai des brumes\",\r\n        \"source\": \"Travel\",\r\n        \"cost\": \"Var\",\r\n        \"category\": \"Fun\",\r\n        \"amount\": 9.26\r\n    },\r\n    {\r\n        \"date\": \"2023-06-25T04:00:00.000Z\",\r\n        \"name\": \"Quai des brumes\",\r\n        \"source\": \"Travel\",\r\n        \"cost\": \"Var\",\r\n        \"category\": \"Fun\",\r\n        \"amount\": 10.9\r\n    },\r\n    {\r\n        \"date\": \"2023-06-26T04:00:00.000Z\",\r\n        \"name\": \"Metro \",\r\n        \"description\": \"Split 41.93\",\r\n        \"source\": \"Travel\",\r\n        \"cost\": \"Var\",\r\n        \"category\": \"Beer\",\r\n        \"amount\": 34.5\r\n    },\r\n    {\r\n        \"date\": \"2023-06-26T04:00:00.000Z\",\r\n        \"name\": \"Metro\",\r\n        \"description\": \"Split 41.93\",\r\n        \"source\": \"Travel\",\r\n        \"cost\": \"Var\",\r\n        \"category\": \"Washroom\",\r\n        \"amount\": 7.43\r\n    },\r\n    {\r\n        \"date\": \"2023-06-22T04:00:00.000Z\",\r\n        \"name\": \"Uber\",\r\n        \"source\": \"Travel\",\r\n        \"cost\": \"Var\",\r\n        \"category\": \"Transport\",\r\n        \"amount\": 14.44\r\n    },\r\n    {\r\n        \"date\": \"2023-06-22T04:00:00.000Z\",\r\n        \"name\": \"Uber\",\r\n        \"source\": \"Travel\",\r\n        \"cost\": \"Var\",\r\n        \"category\": \"Transport\",\r\n        \"amount\": 13.57\r\n    },\r\n    {\r\n        \"date\": \"2023-06-25T04:00:00.000Z\",\r\n        \"name\": \"UBer\",\r\n        \"source\": \"Travel\",\r\n        \"cost\": \"Var\",\r\n        \"category\": \"Transport\",\r\n        \"amount\": 6.9\r\n    }\r\n]"
+						},
+						"url": {
+							"raw": "{{url}}/transactions/64ac257905f01b5beb0863d7/upload",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"transactions",
+								"64ac257905f01b5beb0863d7",
+								"upload"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Transactions",
+			"item": [
+				{
+					"name": "Create Transaction",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\" : \"Test data\",\r\n    \"date\": \"2023-07-12\",\r\n    \"description\": \"Some data\",\r\n    \"amount\" : 28.18,\r\n    \"cost\" : \"Var\",\r\n    \"type\" : \"Expenses\",\r\n    \"transaction\" : \"Expenses\",\r\n    \"category\" : \"Food\"\r\n}"
+						},
+						"url": {
+							"raw": "{{url}}/transactions/",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"transactions",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Transaction file",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n    {\r\n        \"date\": \"2023-06-21T04:00:00.000Z\",\r\n        \"name\": \"Metro\",\r\n        \"source\": \"Travel\",\r\n        \"cost\": \"Var\",\r\n        \"category\": \"Food\",\r\n        \"amount\": 29.62\r\n    },\r\n    {\r\n        \"date\": \"2023-06-21T04:00:00.000Z\",\r\n        \"name\": \"St Sacrement\",\r\n        \"description\": \"AWS\",\r\n        \"source\": \"Travel\",\r\n        \"cost\": \"Var\",\r\n        \"category\": \"Fun\",\r\n        \"amount\": 26.25\r\n    },\r\n    {\r\n        \"date\": \"2023-06-22T04:00:00.000Z\",\r\n        \"name\": \"Fido\",\r\n        \"source\": \"Travel\",\r\n        \"cost\": \"Fix\",\r\n        \"category\": \"Fido\",\r\n        \"amount\": 39.62\r\n    },\r\n    {\r\n        \"date\": \"2023-06-22T04:00:00.000Z\",\r\n        \"name\": \"Depanneur 7 jours\",\r\n        \"description\": \"Beers\",\r\n        \"source\": \"Travel\",\r\n        \"cost\": \"Var\",\r\n        \"category\": \"Beer\",\r\n        \"amount\": 16.11\r\n    },\r\n    {\r\n        \"date\": \"2023-06-22T04:00:00.000Z\",\r\n        \"name\": \"Dollarama\",\r\n        \"description\": \"soap,\",\r\n        \"source\": \"Travel\",\r\n        \"cost\": \"Var\",\r\n        \"category\": \"Washroom\",\r\n        \"amount\": 29.32\r\n    },\r\n    {\r\n        \"date\": \"2023-06-23T04:00:00.000Z\",\r\n        \"name\": \"Skip the dishes\",\r\n        \"source\": \"Travel\",\r\n        \"cost\": \"Var\",\r\n        \"category\": \"Dining\",\r\n        \"amount\": 31.03\r\n    },\r\n    {\r\n        \"date\": \"2023-06-25T04:00:00.000Z\",\r\n        \"name\": \"Quai des brumes\",\r\n        \"source\": \"Travel\",\r\n        \"cost\": \"Var\",\r\n        \"category\": \"Fun\",\r\n        \"amount\": 10.9\r\n    },\r\n    {\r\n        \"date\": \"2023-06-25T04:00:00.000Z\",\r\n        \"name\": \"Quai des brumes\",\r\n        \"source\": \"Travel\",\r\n        \"cost\": \"Var\",\r\n        \"category\": \"Fun\",\r\n        \"amount\": 9.26\r\n    },\r\n    {\r\n        \"date\": \"2023-06-25T04:00:00.000Z\",\r\n        \"name\": \"Quai des brumes\",\r\n        \"source\": \"Travel\",\r\n        \"cost\": \"Var\",\r\n        \"category\": \"Fun\",\r\n        \"amount\": 10.9\r\n    },\r\n    {\r\n        \"date\": \"2023-06-26T04:00:00.000Z\",\r\n        \"name\": \"Metro \",\r\n        \"description\": \"Split 41.93\",\r\n        \"source\": \"Travel\",\r\n        \"cost\": \"Var\",\r\n        \"category\": \"Beer\",\r\n        \"amount\": 34.5\r\n    },\r\n    {\r\n        \"date\": \"2023-06-26T04:00:00.000Z\",\r\n        \"name\": \"Metro\",\r\n        \"description\": \"Split 41.93\",\r\n        \"source\": \"Travel\",\r\n        \"cost\": \"Var\",\r\n        \"category\": \"Washroom\",\r\n        \"amount\": 7.43\r\n    },\r\n    {\r\n        \"date\": \"2023-06-22T04:00:00.000Z\",\r\n        \"name\": \"Uber\",\r\n        \"source\": \"Travel\",\r\n        \"cost\": \"Var\",\r\n        \"category\": \"Transport\",\r\n        \"amount\": 14.44\r\n    },\r\n    {\r\n        \"date\": \"2023-06-22T04:00:00.000Z\",\r\n        \"name\": \"Uber\",\r\n        \"source\": \"Travel\",\r\n        \"cost\": \"Var\",\r\n        \"category\": \"Transport\",\r\n        \"amount\": 13.57\r\n    },\r\n    {\r\n        \"date\": \"2023-06-25T04:00:00.000Z\",\r\n        \"name\": \"UBer\",\r\n        \"source\": \"Travel\",\r\n        \"cost\": \"Var\",\r\n        \"category\": \"Transport\",\r\n        \"amount\": 6.9\r\n    }\r\n]"
+						},
+						"url": {
+							"raw": "{{url}}/transactions/64ac257905f01b5beb0863d7/upload",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"transactions",
+								"64ac257905f01b5beb0863d7",
+								"upload"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all Transactions",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/transactions",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"transactions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Transaction by Id",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/transactions/645cefec7e9ee128f3b117a6",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"transactions",
+								"645cefec7e9ee128f3b117a6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Transaction",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/transactions/645cefec7e9ee128f3b117a6",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"transactions",
+								"645cefec7e9ee128f3b117a6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Transaction",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "        {\r\n            \"name\": \"Test fin last\"\r\n        }"
+						},
+						"url": {
+							"raw": "{{url}}/transactions/645d04726bc43c0d80b3a8a5",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"transactions",
+								"645d04726bc43c0d80b3a8a5"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"TOKEN\", pm.response.json().token)"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "    {\r\n        \"email\":\"john.doe@gmail.com\",\r\n        \"password\": \"123123\",\r\n        \"address\" : \"5000 Rue Jean Talon\",\r\n        \"city\" :\"Montreal\"\r\n    }"
+						},
+						"url": {
+							"raw": "{{url}}/auth/register",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "    {\r\n        \"email\":\"matias.traub@gogogol.com\",\r\n        \"password\": \"123123\"\r\n    }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/auth/login",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Me",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0NjNkODM1ZjYyNzk2NjY2Y2VlMmFkMSIsImlhdCI6MTY4NDUxNDE3NywiZXhwIjoxNjg3MTA2MTc3fQ._nl3gHmwsqsWQPf3EYmxvovXqoqrUkDv86o8eNDa4aM",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/auth/me",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"auth",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/auth/logout",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Forgot Password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"TOKEN\", pm.response.json().token)"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "    {\r\n        \"email\":\"john.doe@gmail.com\"\r\n    }"
+						},
+						"url": {
+							"raw": "{{url}}/auth/forgotPassword",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"auth",
+								"forgotPassword"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reset password",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"password\": \"123666\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/auth//resetPassword/349744cd4ad69cb27175ad718b7a9f03f539cf4e",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"auth",
+								"",
+								"resetPassword",
+								"349744cd4ad69cb27175ad718b7a9f03f539cf4e"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Categories",
+			"item": [
+				{
+					"name": "Create Category",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\" : \"AWS\",\r\n    \"description\" : \"Amazon Web Service\"\r\n}"
+						},
+						"url": {
+							"raw": "{{url}}/categories",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Categories",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/categories",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Category",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0NjNkODM1ZjYyNzk2NjY2Y2VlMmFkMSIsImlhdCI6MTY4NDUxNDE3NywiZXhwIjoxNjg3MTA2MTc3fQ._nl3gHmwsqsWQPf3EYmxvovXqoqrUkDv86o8eNDa4aM",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/categories/64aeb23bbb61db627ffc3ec5",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"categories",
+								"64aeb23bbb61db627ffc3ec5"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
