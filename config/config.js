@@ -1,5 +1,6 @@
 module.exports = {
-  apiUrl: "/api/v1",
+  //apiUrl: "/api/v1",
+  apiUrl: "",
   port: 3000,
   limiter: {
     windowMs: 10 * 60 * 1000, // 10 minutes
