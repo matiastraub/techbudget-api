@@ -92,7 +92,7 @@ app.use(hpp());
 app.use(
   cors({
     credentials: true,
-    origin: [`http://localhost:${config.port}`],
+    origin: [`http://localhost:${config.port}`, `http://localhost`],
   })
 );
 
