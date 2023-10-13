@@ -1,7 +1,7 @@
-const express = require("express");
+const express = require('express')
 
-const router = express.Router();
-const { protect } = require("../middleware/auth");
+const router = express.Router()
+const { protect } = require('../middleware/auth')
 
 const {
   getTransactions,
@@ -10,26 +10,26 @@ const {
   updateTransaction,
   deleteTransaction,
   uploadTransactionFile,
-} = require("../controllers/transactions");
+} = require('../controllers/transactions')
 
-const Transaction = require("../models/Transaction");
-const advancedQueries = require("../middleware/advancedQueries");
+const Transaction = require('../models/Transaction')
+const advancedQueries = require('../middleware/advancedQueries')
 
 router
-  .route("/")
+  .route('/')
   .get(
     protect,
-    advancedQueries(Transaction, ["category", "name"]),
+    advancedQueries(Transaction, ['category', 'name']),
     getTransactions
   )
-  .post(protect, createTransaction);
+  .post(protect, createTransaction)
 
 router
-  .route("/:id")
+  .route('/:id')
   .get(protect, getTransaction)
   .put(protect, updateTransaction)
-  .delete(protect, deleteTransaction);
+  .delete(protect, deleteTransaction)
 
-router.route("/upload").post(protect, uploadTransactionFile);
+router.route('/upload').post(protect, uploadTransactionFile)
 
-module.exports = router;
+module.exports = router

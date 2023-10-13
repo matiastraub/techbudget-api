@@ -1,17 +1,17 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose')
 
 const CategorySchema = new mongoose.Schema({
   name: {
     trim: true,
     type: String,
     unique: true,
-    required: [true, "Please add a category"],
-    maxlength: [20, "Description cannot be longer than 20 characters"],
+    required: [true, 'Please add a category'],
+    maxlength: [20, 'Description cannot be longer than 20 characters'],
   },
   description: {
     type: String,
     required: false,
-    maxlength: [100, "Description cannot be longer than 100 characters"],
+    maxlength: [100, 'Description cannot be longer than 100 characters'],
   },
   createdAt: {
     type: Date,
@@ -23,9 +23,9 @@ const CategorySchema = new mongoose.Schema({
   },
   user: {
     type: mongoose.Schema.ObjectId,
-    ref: "User",
+    ref: 'User',
     required: true,
   },
-});
+})
 
-module.exports = mongoose.model("Category", CategorySchema);
+module.exports = mongoose.model('Category', CategorySchema)

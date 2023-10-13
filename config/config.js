@@ -1,6 +1,6 @@
 module.exports = {
   //apiUrl: "/api/v1",
-  apiUrl: "",
+  apiUrl: '',
   port: 3000,
   limiter: {
     windowMs: 10 * 60 * 1000, // 10 minutes
@@ -12,4 +12,4 @@ module.exports = {
   },
   cookiesExpire: 24 * 60 * 60 * 1000,
   tokenExpires: 10 * 1000,
-};
+}

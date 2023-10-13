@@ -1,45 +1,45 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose')
 
 const TransactionSchema = new mongoose.Schema({
   name: {
     type: String,
     unique: false,
     trim: true,
-    maxlength: [50, "Name cannot be longer than 50 characters"],
+    maxlength: [50, 'Name cannot be longer than 50 characters'],
   },
   slug: String,
   description: {
     type: String,
     required: false,
-    maxlength: [500, "Name cannot be longer than 500 characters"],
+    maxlength: [500, 'Name cannot be longer than 500 characters'],
   },
   amount: {
     type: Number,
     required: true,
-    min: [0, "Must be at least 0"],
+    min: [0, 'Must be at least 0'],
   },
   cost: {
     type: String,
     required: true,
-    enum: ["Var", "Fix"],
+    enum: ['Var', 'Fix'],
   },
   source: {
     type: String,
     required: false,
-    default: "Unknown",
+    default: 'Unknown',
     //Change
-    enum: ["Travel", "BMO", "TD"],
+    enum: ['Travel', 'BMO', 'TD', 'Cash'],
   },
   type: {
     type: String,
     required: false,
-    default: "Expenses",
+    default: 'Expenses',
     //Change
-    enum: ["Expenses", "Transaction", "Revenue"],
+    enum: ['Expenses', 'Transaction', 'Revenue'],
   },
   category: {
     type: mongoose.Schema.ObjectId,
-    ref: "Category",
+    ref: 'Category',
     required: true,
   },
   date: {
@@ -56,9 +56,9 @@ const TransactionSchema = new mongoose.Schema({
   },
   user: {
     type: mongoose.Schema.ObjectId,
-    ref: "User",
+    ref: 'User',
     required: true,
   },
-});
+})
 
-module.exports = mongoose.model("Transaction", TransactionSchema);
+module.exports = mongoose.model('Transaction', TransactionSchema)
