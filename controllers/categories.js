@@ -20,14 +20,17 @@ exports.getCategory = asyncHandler(async (req, res, next) => {
   res.status(200).json({ sucess: true, data: category })
 })
 
-// @desc    Create a category
+// @desc    Create one or many categories
 // @route   POST /api/v1/categories
 // @access  Private
 exports.createCategory = asyncHandler(async (req, res) => {
-  const body = { ...req.body, user: req.user.id }
-  const category = await Category.create(body)
-  res.status(201).json({ sucess: true, data: category })
+  req.body.forEach((category) => {
+    category.user = req.user.id
+  })
+  const categories = await Category.insertMany(req.body)
+  res.status(201).json({ sucess: true, data: categories })
 })
+
 // @desc    Update a given category
 // @route   PUT /api/v1/transactions/:id
 // @access  Private
