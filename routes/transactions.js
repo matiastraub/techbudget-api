@@ -8,6 +8,7 @@ const {
   getTransaction,
   createTransaction,
   updateTransaction,
+  updateTransactions,
   deleteTransaction,
   uploadTransactionFile,
 } = require('../controllers/transactions')
@@ -23,6 +24,7 @@ router
     getTransactions
   )
   .post(protect, createTransaction)
+  .put(protect,updateTransactions)
 
 router
   .route('/:id')
