@@ -8,7 +8,7 @@ const UserSchema = new mongoose.Schema({
   name: {
     type: String,
     unique: false,
-    required: false,
+    required: true,
     trim: true,
     maxlength: [50, 'Name cannot be longer than 50 characters'],
   },
@@ -42,18 +42,24 @@ const UserSchema = new mongoose.Schema({
   },
   resetPasswordToken: String,
   resetPasswordExpire: Date,
+  verifyEmailToken: String,
+  verifyEmailExpire: Date,
+  isVerified: {
+    type: Boolean,
+    default: false
+  },
   photo: {
     type: String,
     default: 'no-photo.jpg',
   },
   address: {
     type: String,
-    required: true,
+    required: false,
     maxlength: [500, 'Address cannot be longer than 500 characters'],
   },
   city: {
     type: String,
-    required: true,
+    required: false,
     maxlength: [25, 'City cannot be longer than 25 characters'],
   },
   location: {
@@ -79,17 +85,6 @@ const UserSchema = new mongoose.Schema({
     required: false,
     maxlength: [500, 'Name cannot be longer than 500 characters'],
   },
-  ranking: {
-    type: Number,
-    required: false,
-    min: [0, 'Must be at least 0'],
-    max: [5, 'Must not be greater than 5'],
-  },
-  sport: {
-    type: String,
-    required: false,
-    enum: ['soccer', 'hockey', 'volleyball'],
-  },
   createdAt: {
     type: Date,
     default: Date.now,
@@ -113,21 +108,29 @@ UserSchema.pre('save', async function (next) {
 
 // Add geolocation
 // eslint-disable-next-line func-names
-UserSchema.pre('save', async function (next) {
-  const addressCity = `${this.address}, ${this.city}`
-  const loc = await geocoder.geocode(addressCity)
-  this.location = {
-    type: 'Point',
-    coordinates: [loc[0].longitude, loc[0].latitude],
-    formattedAddress: loc[0].formattedAddress,
-    street: loc[0].streetName,
-    city: loc[0].city,
-    state: loc[0].stateCode,
-    zipcode: loc[0].zipcode,
-    country: loc[0].countryCode,
-  }
-  next()
-})
+// UserSchema.pre('save', async function (next) {
+//   const addressCity = `${this.address}, ${this.city}`
+//   const isActive = process.env.GEOCODER_IS_ACTIVE
+//   console.log('isActive: ', isActive) 
+//   //TODO: Change this but we still need to comment it out otherwise it gets triggered with an error
+//   if(isActive) {
+//      const loc = await geocoder.geocode(addressCity)
+//     this.location = {
+//       type: 'Point',
+//       coordinates: [loc[0].longitude, loc[0].latitude],
+//       formattedAddress: loc[0].formattedAddress,
+//       street: loc[0].streetName,
+//       city: loc[0].city,
+//       state: loc[0].stateCode,
+//       zipcode: loc[0].zipcode,
+//       country: loc[0].countryCode,
+//     }
+//   } else {
+//     console.log('remove location')
+//     //this.location = {}
+//   }
+//   next()
+// })
 
 // Sign JWT and return
 // eslint-disable-next-line func-names
@@ -158,5 +161,23 @@ UserSchema.methods.getResetPasswordToken = async function () {
   this.resetPasswordExpire = Date.now() + 10 * 60 * 1000
   return resetToken
 }
+
+
+//TODO: Refactor with getResetPasswordToken
+UserSchema.methods.setVerifyEmailToken = function () {
+  // Generate the token
+  const token = crypto.randomBytes(20).toString('hex')
+  // Hash token and set to resetPasswordToken field
+  this.verifyEmailToken = crypto
+    .createHash('sha256')
+    .update(token)
+    .digest('hex')
+  // Set expire
+  this.verifyEmailExpire = Date.now() + 10 * 60 * 1000
+  // Set isVerified to false
+  this.isVerified = false
+  return token
+}
+
 
 module.exports = mongoose.model('User', UserSchema)
