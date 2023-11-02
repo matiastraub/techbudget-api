@@ -3,6 +3,7 @@
 # dependencies
 /node_modules
 /config/config.env
+/config/configEnv.js
 
 /.pnp
 .pnp.js
@@ -17,7 +18,8 @@
 /data
 
 # public
-/public/uploads
+/public/uploads/
+/public/uploads/pic-bill-vector.jpg
 
 # internals
 /controllers/fins.js
@@ -31,6 +33,7 @@ views/index.ejs
 .env.development.local
 .env.test.local
 .env.production.local
+createDir.js
 
 npm-debug.log*
 yarn-debug.log*

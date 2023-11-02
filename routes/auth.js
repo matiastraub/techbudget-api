@@ -10,11 +10,17 @@ const {
   logout,
   forgotPassword,
   resetPassword,
+  verifyEmail,
+  resendToken,
 } = require('../controllers/auth')
 
 router.route('/me').get(protect, getMe)
 
 router.route('/register').post(register)
+
+router.route('/verifyEmail').put(verifyEmail)
+
+router.route('/resendToken').put(protect,resendToken)
 
 router.route('/login').post(login)
 
