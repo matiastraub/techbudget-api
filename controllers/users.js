@@ -108,7 +108,7 @@ exports.userPhotoUpload = asyncHandler(async (req, res, next) => {
     )
   }
 
-  const uploadPath = `${process.env.FILE_UPLOAD_PATH}/${req.params.id}`
+  const uploadPath = `${process.env.FILE_UPLOAD_PATH}/users/${req.params.id}`
 
   // Create folder if it does not exist
   if (!fs.existsSync(uploadPath)) {
@@ -134,9 +134,8 @@ exports.userPhotoUpload = asyncHandler(async (req, res, next) => {
   const { ext } = path.parse(file.name)
   const timestamp = new Date().getTime()
   // Rename file
-  file.name = file.name.replace(/.(jpeg|jpg|png|gif|webp)/g, '')
+  file.name = file.name.replace(/.(jpeg|jpg|png|gif|webp)/gi, '')
   file.name = `${file.name}_${timestamp}${ext}`
-
   file.mv(`${uploadPath}/${file.name}`, async (err) => {
     if (err) {
       next(new ErrorResponse(`Problem with file ${err}`, 500))
@@ -163,7 +162,7 @@ exports.getAllFiles = asyncHandler(async (req, res, next) => {
 
   const uploadPath = path.join(
     __dirname,
-    `../public/uploads/${req.params.id}${album}`
+    `../public/uploads/users/${req.params.id}${album}`
   )
   fs.readdir(uploadPath, async (err, files) => {
     if (err) {
