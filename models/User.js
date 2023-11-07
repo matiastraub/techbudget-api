@@ -28,6 +28,7 @@ const UserSchema = new mongoose.Schema({
       /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
       'Please fill a valid email address',
     ],
+    lowercase: true
   },
   role: {
     type: String,
@@ -87,6 +88,7 @@ const UserSchema = new mongoose.Schema({
   },
   createdAt: {
     type: Date,
+    immutable: true,
     default: Date.now,
   },
   updatedAt: {

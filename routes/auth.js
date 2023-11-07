@@ -18,16 +18,17 @@ router.route('/me').get(protect, getMe)
 
 router.route('/register').post(register)
 
-router.route('/verifyEmail').put(verifyEmail)
+router.route('/verifyEmail').post(verifyEmail)
 
-router.route('/resendToken').put(protect,resendToken)
+router.route('/resendToken').put(protect, resendToken)
 
 router.route('/login').post(login)
 
-router.route('/logout').post(protect, logout)
+//router.route('/logout').post(protect, logout)
+router.route('/logout').post(logout)
 
 router.route('/forgotPassword').post(forgotPassword)
 
-router.route('/resetPassword/:resettoken').put(resetPassword)
+router.route('/resetPassword').post(resetPassword)
 
 module.exports = router
