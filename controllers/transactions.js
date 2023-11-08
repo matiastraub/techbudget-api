@@ -109,18 +109,27 @@ exports.updateTransaction = asyncHandler(async (req, res, next) => {
 // @desc    Update an array of transaction objects
 // @route   PUT /api/v1/transactions
 // @access  Private
-exports.updateTransactions = asyncHandler(async (req,res,next) => {
-  const categories = await Category.find({user: req.user.id})
-  const objects = req.body;
-  objects.forEach(async object => {
+exports.updateTransactions = asyncHandler(async (req, res, next) => {
+  const categories = await Category.find({ user: req.user.id })
+  const objects = req.body
+  objects.forEach(async (object) => {
     const transaction = await Transaction.findById(object.id)
-    if(!transaction) {return  next(new ErrorResponse(`Not found with id: ${obj.id}`, 404))}
-      const categoryId = categories.find(category => category.name === object.category).id;
-      object.category = categoryId
-      const trans = await Transaction.findByIdAndUpdate(object.id,object,{new: true,runValidators: true})
-      if (!trans) {return next(new ErrorResponse(`Not found with id: ${obj.id}`, 404))}
+    if (!transaction) {
+      return next(new ErrorResponse(`Not found with id: ${obj.id}`, 404))
+    }
+    const categoryId = categories.find(
+      (category) => category.name === object.category
+    ).id
+    object.category = categoryId
+    const trans = await Transaction.findByIdAndUpdate(object.id, object, {
+      new: true,
+      runValidators: true,
     })
-  res.status(200).json({success:true, data:objects})
+    if (!trans) {
+      return next(new ErrorResponse(`Not found with id: ${obj.id}`, 404))
+    }
+  })
+  res.status(200).json({ success: true, data: objects })
 })
 
 // @desc    Delete a given transaction
@@ -131,5 +140,5 @@ exports.deleteTransaction = asyncHandler(async (req, res, next) => {
   if (!transaction) {
     next(new ErrorResponse(`Not found with id: ${req.params.id}`, 404))
   }
-  res.status(200).json({ sucess: true, data: {} })
+  res.status(200).json({ success: true, data: {} })
 })
