@@ -29,7 +29,7 @@ exports.getTransaction = asyncHandler(async (req, res, next) => {
   if (!transaction) {
     next(new ErrorResponse(`Not found with id: ${req.params.id}`, 404))
   }
-  res.status(200).json({ sucess: true, data: transaction })
+  res.status(200).json({ success: true, data: transaction })
 })
 
 // @desc    Create a transaction
@@ -43,7 +43,7 @@ exports.createTransaction = asyncHandler(async (req, res) => {
   })
   req.body.category = category.id
   const transaction = await Transaction.create(req.body)
-  return res.status(201).json({ sucess: true, data: transaction })
+  return res.status(201).json({ success: true, data: transaction })
 })
 
 // @desc    Upload a transaction file (Excel from the front-end)
@@ -85,7 +85,7 @@ exports.uploadTransactionFile = asyncHandler(async (req, res, next) => {
   })
 
   const transactions = await Transaction.insertMany(req.body)
-  return res.status(201).json({ sucess: true, data: transactions })
+  return res.status(201).json({ success: true, data: transactions })
 })
 
 // @desc    Update a given transaction
@@ -103,7 +103,7 @@ exports.updateTransaction = asyncHandler(async (req, res, next) => {
   if (!transaction) {
     next(new ErrorResponse(`Not found with id: ${req.params.id}`, 404))
   }
-  res.status(200).json({ sucess: true, data: transaction })
+  res.status(200).json({ success: true, data: transaction })
 })
 
 // @desc    Update an array of transaction objects

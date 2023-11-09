@@ -12,7 +12,7 @@ const config = require('../config/config')
 // @access  Private
 exports.getUsers = asyncHandler(async (req, res) => {
   const users = await User.find(req.query)
-  res.status(200).json({ sucess: true, count: users.length, data: users })
+  res.status(200).json({ success: true, count: users.length, data: users })
 })
 
 // @desc    Update user details
@@ -27,7 +27,7 @@ exports.updateDetails = asyncHandler(async (req, res) => {
     new: true,
     runValidators: true,
   })
-  res.status(200).json({ sucess: true, data: user })
+  res.status(200).json({ success: true, data: user })
 })
 
 // @desc    Get all Users
@@ -38,7 +38,7 @@ exports.getUser = asyncHandler(async (req, res, next) => {
   if (!user) {
     return next(new ErrorResponse(`Not found with id: ${req.params.id}`, 404))
   }
-  return res.status(200).json({ sucess: true, data: user })
+  return res.status(200).json({ success: true, data: user })
 })
 
 // @desc    Create a User
@@ -46,7 +46,7 @@ exports.getUser = asyncHandler(async (req, res, next) => {
 // @access  Private
 exports.createUser = asyncHandler(async (req, res) => {
   const user = await User.create(req.body)
-  res.status(201).json({ sucess: true, data: user })
+  res.status(201).json({ success: true, data: user })
 })
 
 // @desc    Update a given User
@@ -60,7 +60,7 @@ exports.updateUser = asyncHandler(async (req, res, next) => {
   if (!user) {
     return next(new ErrorResponse(`Not found with id: ${req.params.id}`, 404))
   }
-  return res.status(200).json({ sucess: true, data: user })
+  return res.status(200).json({ success: true, data: user })
 })
 
 // @desc    Delete a given User
@@ -71,7 +71,7 @@ exports.deleteUser = asyncHandler(async (req, res, next) => {
   if (!user) {
     return next(new ErrorResponse(`Not found with id: ${req.params.id}`, 404))
   }
-  return res.status(200).json({ sucess: true, data: {} })
+  return res.status(200).json({ success: true, data: {} })
 })
 
 // @desc    Get users within a radius
@@ -94,7 +94,7 @@ exports.getUsersByRadius = asyncHandler(async (req, res, next) => {
   if (!user) {
     return next(new ErrorResponse(`Not found with id: ${req.params.id}`, 404))
   }
-  return res.status(200).json({ sucess: true, count: user.length, data: user })
+  return res.status(200).json({ success: true, count: user.length, data: user })
 })
 
 // @desc    Upload picture for a given user
@@ -120,7 +120,7 @@ exports.userPhotoUpload = asyncHandler(async (req, res, next) => {
   }
   // return next(new ErrorResponse('Exiting process for testing', 400));
   const { file } = req.files
-  // return res.status(200).json({ sucess: true, data: file });
+  // return res.status(200).json({ success: true, data: file });
   // Check whether image is a photo with valid extension
   if (!file.mimetype.startsWith('image')) {
     return next(new ErrorResponse('Please upload an image file', 400))
@@ -142,7 +142,7 @@ exports.userPhotoUpload = asyncHandler(async (req, res, next) => {
     }
     await User.findByIdAndUpdate(req.params.id, { photo: file.name })
   })
-  return res.status(200).json({ sucess: true, data: file.name })
+  return res.status(200).json({ success: true, data: file.name })
 })
 
 // @desc    Get all the files for a given user
@@ -182,6 +182,6 @@ exports.getAllFiles = asyncHandler(async (req, res, next) => {
       }
       doc.push(obj)
     })
-    res.status(200).json({ sucess: true, count: doc.length, data: doc })
+    res.status(200).json({ success: true, count: doc.length, data: doc })
   })
 })
