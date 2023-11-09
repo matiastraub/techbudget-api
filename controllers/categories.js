@@ -17,23 +17,23 @@ exports.getCategory = asyncHandler(async (req, res, next) => {
   if (!category) {
     next(new ErrorResponse(`Not found with id: ${req.params.id}`, 404))
   }
-  res.status(200).json({ sucess: true, data: category })
+  res.status(200).json({ success: true, data: category })
 })
 
 // @desc    Create one or many categories
 // @route   POST /api/v1/categories
 // @access  Private
 exports.createCategory = asyncHandler(async (req, res) => {
-  if(Array.isArray(req.body)) {
+  if (Array.isArray(req.body)) {
     req.body.forEach((category) => {
       category.user = req.user.id
     })
     const categories = await Category.insertMany(req.body)
-    res.status(201).json({ sucess: true, data: categories })
+    res.status(201).json({ success: true, data: categories })
   } else {
     req.body.user = req.user.id
     const category = await Category.create(req.body)
-    res.status(201).json({ sucess: true, data: category})
+    res.status(201).json({ success: true, data: category })
   }
 })
 
@@ -48,7 +48,7 @@ exports.updateCategory = asyncHandler(async (req, res, next) => {
   if (!category) {
     next(new ErrorResponse(`Not found with id: ${req.params.id}`, 404))
   }
-  res.status(200).json({ sucess: true, data: category })
+  res.status(200).json({ success: true, data: category })
 })
 
 // @desc    Delete a given category
@@ -59,5 +59,5 @@ exports.deleteCategory = asyncHandler(async (req, res, next) => {
   if (!category) {
     next(new ErrorResponse(`Not found with id: ${req.params.id}`, 404))
   }
-  res.status(200).json({ sucess: true, data: {} })
+  res.status(200).json({ success: true, data: {} })
 })
