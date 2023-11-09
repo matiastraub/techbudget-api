@@ -169,6 +169,10 @@ exports.getAllFiles = asyncHandler(async (req, res, next) => {
       next(new ErrorResponse('Unable to scan directory', 500))
     }
     const doc = []
+
+    if (!files) {
+      next(new ErrorResponse('Files do not exist', 500))
+    }
     files.forEach((file) => {
       const isFolder = isDir(fs, `${uploadPath}/${file}`)
       const obj = {
