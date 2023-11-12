@@ -3,6 +3,7 @@ const asyncHandler = require('../middleware/async')
 const Transaction = require('../models/Transaction')
 const Category = require('../models/Category')
 const User = require('../models/User')
+const { predictTransactionCost } = require('../utils/predictors')
 
 const getUniqueCategories = (reqTransactions) => {
   const categories = []
@@ -96,6 +97,7 @@ exports.uploadTransactionFile = asyncHandler(async (req, res, next) => {
 
   transactions.forEach((trans) => {
     trans.userCategory = trans.category
+    trans.cost = predictTransactionCost(trans.cost, trans.userCategory)
     //TODO: Check if necessary
     trans.category = categoriesReq.find(
       (cat) => cat.name === trans.userCategory
@@ -129,9 +131,10 @@ exports.updateTransaction = asyncHandler(async (req, res, next) => {
 // @route   PUT /api/v1/transactions
 // @access  Private
 exports.updateTransactions = asyncHandler(async (req, res, next) => {
-  const categories = await Category.find({ user: req.user.id })
+  const categories = await Category.find()
   const objects = req.body
   objects.forEach(async (object) => {
+    object.amount = parseFloat(object.amount)
     const transaction = await Transaction.findById(object.id)
     if (!transaction) {
       return next(new ErrorResponse(`Not found with id: ${obj.id}`, 404))
