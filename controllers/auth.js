@@ -2,10 +2,12 @@ const crypto = require('crypto')
 const ErrorResponse = require('../utils/ErrorResponse')
 const asyncHandler = require('../middleware/async')
 const {
-  sendVerifyEmailWithTokenEmail,sendForgotPasswordEmail,sendResendTokenEmail} = require('../utils/sendEmail')
+  sendVerifyEmailWithTokenEmail,
+  sendForgotPasswordEmail,
+  sendResendTokenEmail,
+} = require('../utils/sendEmail')
 const User = require('../models/User')
 const config = require('../config/config')
-
 
 /*
     @desc Send token response
@@ -56,7 +58,14 @@ exports.register = asyncHandler(async (req, res, next) => {
     //city,
     //address
   })
-  await sendVerifyEmailWithTokenEmail(req, res, next, user, token, config.emailSender)
+  await sendVerifyEmailWithTokenEmail(
+    req,
+    res,
+    next,
+    user,
+    token,
+    config.emailSender
+  )
   return sendTokenResponse(user, 200, res)
 })
 
@@ -72,14 +81,13 @@ exports.resendToken = asyncHandler(async (req, res, next) => {
   const user = await User.findOne({ email: req.user.email })
   const token = user.setVerifyEmailToken()
   await user.save({ validateBeforeSave: false })
-  await sendResendTokenEmail(req, res, next, user, token,config.emailSender)
+  await sendResendTokenEmail(req, res, next, user, token, config.emailSender)
   res.status(200).json({
     success: true,
-       //TODO: change to data: user
+    //TODO: change to data: user
     data: { user, token },
   })
 })
-
 
 /*
     @desc Reset Password
@@ -146,7 +154,7 @@ exports.login = asyncHandler(async (req, res, next) => {
     @access Public
 */
 exports.resetPassword = asyncHandler(async (req, res, next) => {
-  const {token,password} = req.body
+  const { token, password } = req.body
   const resetPasswordToken = crypto
     .createHash('sha256')
     .update(token)
@@ -167,7 +175,7 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
   await user.save({ validateBeforeSave: false })
   res.status(200).json({
     success: true,
-    data: user
+    data: user,
   })
 })
 
@@ -218,10 +226,17 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
   const resetToken = await user.getResetPasswordToken()
   await user.save({ validateBeforeSave: false })
   try {
-    await sendForgotPasswordEmail(req, res, next, user, resetToken,config.emailSender)
-  res
-    .status(200)
-    .json({ success: true, data: 'Email sent', token: resetToken })
+    await sendForgotPasswordEmail(
+      req,
+      res,
+      next,
+      user,
+      resetToken,
+      config.emailSender
+    )
+    res
+      .status(200)
+      .json({ success: true, data: 'Email sent', token: resetToken })
   } catch (error) {
     user.resetPasswordToken = undefined
     user.resetPasswordExpire = undefined
@@ -229,4 +244,3 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
     next(new ErrorResponse('Email could not be sent', 500))
   }
 })
-

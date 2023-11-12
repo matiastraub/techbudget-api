@@ -28,7 +28,7 @@ const UserSchema = new mongoose.Schema({
       /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
       'Please fill a valid email address',
     ],
-    lowercase: true
+    lowercase: true,
   },
   role: {
     type: String,
@@ -47,7 +47,7 @@ const UserSchema = new mongoose.Schema({
   verifyEmailExpire: Date,
   isVerified: {
     type: Boolean,
-    default: false
+    default: false,
   },
   photo: {
     type: String,
@@ -95,6 +95,16 @@ const UserSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  categories: [
+    {
+      type: String,
+    },
+  ],
+  sources: [
+    {
+      type: String,
+    },
+  ],
 })
 
 // Encrypt password unsing bcrypt
@@ -108,12 +118,32 @@ UserSchema.pre('save', async function (next) {
   this.password = await bcrypt.hash(this.password, salt)
 })
 
+UserSchema.pre('save', async function (next) {
+  this.categories = [
+    'Bank',
+    'Car',
+    'Food',
+    'Fun',
+    'Dining',
+    'Gas',
+    'Hydro',
+    'Internet',
+    'Phone',
+    'Others',
+    'Rent',
+    'Transport',
+    'Travel',
+  ]
+  this.sources = ['Cash', 'Debit', 'Credit']
+  next()
+})
+
 // Add geolocation
 // eslint-disable-next-line func-names
 // UserSchema.pre('save', async function (next) {
 //   const addressCity = `${this.address}, ${this.city}`
 //   const isActive = process.env.GEOCODER_IS_ACTIVE
-//   console.log('isActive: ', isActive) 
+//   console.log('isActive: ', isActive)
 //   //TODO: Change this but we still need to comment it out otherwise it gets triggered with an error
 //   if(isActive) {
 //      const loc = await geocoder.geocode(addressCity)
@@ -164,7 +194,6 @@ UserSchema.methods.getResetPasswordToken = async function () {
   return resetToken
 }
 
-
 //TODO: Refactor with getResetPasswordToken
 UserSchema.methods.setVerifyEmailToken = function () {
   // Generate the token
@@ -180,6 +209,5 @@ UserSchema.methods.setVerifyEmailToken = function () {
   this.isVerified = false
   return token
 }
-
 
 module.exports = mongoose.model('User', UserSchema)

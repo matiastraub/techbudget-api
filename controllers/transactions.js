@@ -2,6 +2,7 @@ const ErrorResponse = require('../utils/ErrorResponse')
 const asyncHandler = require('../middleware/async')
 const Transaction = require('../models/Transaction')
 const Category = require('../models/Category')
+const User = require('../models/User')
 
 const getUniqueCategories = (reqTransactions) => {
   const categories = []
@@ -37,28 +38,44 @@ exports.getTransaction = asyncHandler(async (req, res, next) => {
 // @access  Private
 exports.createTransaction = asyncHandler(async (req, res) => {
   req.body.user = req.user.id
-  const category = await Category.findOne({
-    user: req.body.user,
-    name: req.body.category,
-  })
-  req.body.category = category.id
+  const categories = await Category.find()
+  const transCategory = req.body.category
+  const categoryId = categories.find(
+    (category) => category.name === transCategory
+  )?.id
+  req.body.category = categoryId ? categoryId : undefined
   const transaction = await Transaction.create(req.body)
+  //Add Category To user
+  await addCategoryToUser(req)
   return res.status(201).json({ success: true, data: transaction })
 })
+
+const addCategoryToUser = async (req) => {
+  const user = await User.findOne({ email: req.user.email })
+  const transCategory = req.body.userCategory
+  if (!user.categories.includes(transCategory)) {
+    if (transCategory) {
+      user.categories.push(transCategory)
+      user.save()
+    }
+  }
+}
 
 // @desc    Upload a transaction file (Excel from the front-end)
 // @route   POST /api/v1/transactions/upload
 // @access  Private
 exports.uploadTransactionFile = asyncHandler(async (req, res, next) => {
-  const categories = getUniqueCategories(req.body)
-  const categoryResp = await Category.find({ user: req.user.id })
-  const mappedCategories = categoryResp.map((categ) => categ.name)
+  const categoriesReq = await Category.find()
+  const transactions = req.body
+  const categories = getUniqueCategories(transactions)
 
-  const difference = categories.filter((x) => !mappedCategories.includes(x))
+  const difference = categories.filter(
+    (value) => req.user.categories.indexOf(value) === -1
+  )
 
   if (difference.length === 1) {
     return next(
-      new ErrorResponse(`this category does not exist ${difference[0]}`, 500)
+      new ErrorResponse(`This category does not exist: ${difference[0]}`, 500)
     )
   }
   if (difference.length) {
@@ -71,21 +88,23 @@ exports.uploadTransactionFile = asyncHandler(async (req, res, next) => {
   }
 
   // Check max size
-  if (req.body.length > process.env.MAX_TRANSACTIONS_UPLOAD) {
+  if (transactions.length > process.env.MAX_TRANSACTIONS_UPLOAD) {
     return next(
-      new ErrorResponse(`Upload limit reached ${req.body.length}`, 400)
+      new ErrorResponse(`Upload limit reached ${transactions.length}`, 400)
     )
   }
 
-  req.body.forEach((element) => {
-    element.category = categoryResp.find(
-      (cat) => cat.name === element.category
+  transactions.forEach((trans) => {
+    trans.userCategory = trans.category
+    //TODO: Check if necessary
+    trans.category = categoriesReq.find(
+      (cat) => cat.name === trans.userCategory
     ).id
-    element.user = req.user.id
+    trans.user = req.user.id
   })
 
-  const transactions = await Transaction.insertMany(req.body)
-  return res.status(201).json({ success: true, data: transactions })
+  const transactionsCreated = await Transaction.insertMany(transactions)
+  return res.status(201).json({ success: true, data: transactionsCreated })
 })
 
 // @desc    Update a given transaction

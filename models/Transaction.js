@@ -11,6 +11,7 @@ const TransactionSchema = new mongoose.Schema({
   description: {
     type: String,
     required: false,
+    trim: true,
     maxlength: [500, 'Name cannot be longer than 500 characters'],
   },
   amount: {
@@ -28,7 +29,7 @@ const TransactionSchema = new mongoose.Schema({
     required: false,
     default: 'Unknown',
     //Change
-    enum: ['Travel', 'BMO', 'TD', 'Cash'],
+    enum: ['Cash', 'Debit', 'Credit', 'Travel', 'BMO', 'TD', 'Unknown'],
   },
   type: {
     type: String,
@@ -40,7 +41,12 @@ const TransactionSchema = new mongoose.Schema({
   category: {
     type: mongoose.Schema.ObjectId,
     ref: 'Category',
-    required: true,
+    default: '654e509d1a373147025f3d6f',
+    required: false,
+  },
+  userCategory: {
+    type: String,
+    required: false,
   },
   date: {
     type: Date,
