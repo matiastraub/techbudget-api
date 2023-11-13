@@ -53,6 +53,7 @@ const publicUrl = path.join(__dirname, '../public')
 app.use(
   cors({
     credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization'],
     origin: [
       `http://localhost:${config.port}`,
       `http://localhost`,
