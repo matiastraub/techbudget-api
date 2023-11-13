@@ -49,6 +49,20 @@ app.set('view engine', 'ejs')
 
 const publicUrl = path.join(__dirname, '../public')
 
+// Enable CORS
+app.use(
+  cors({
+    credentials: true,
+    origin: [
+      `http://localhost:${config.port}`,
+      `http://localhost`,
+      `https://localhost`,
+      `https://techbudget.io`,
+      `https://www.techbudget.io`,
+    ],
+  })
+)
+
 app.use('/assets', express.static(publicUrl))
 
 if (process.env.NODE_ENV === 'development') {
@@ -87,20 +101,6 @@ app.use(limiter)
 
 // Prevent hpp param polution
 app.use(hpp())
-
-// Enable CORS
-app.use(
-  cors({
-    credentials: true,
-    origin: [
-      `http://localhost:${config.port}`,
-      `http://localhost`,
-      `https://localhost`,
-      `https://techbudget.io`,
-      `https://www.techbudget.io`,
-    ],
-  })
-)
 
 // Mount routers
 app.use(`${config.apiUrl}/transactions`, transactionsRouter)
