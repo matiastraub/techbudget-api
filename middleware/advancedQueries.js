@@ -1,13 +1,12 @@
 const config = require('../config/queries')
 
 const advancedQueries = (model, populate) => async (req, res, next) => {
-  // Copy req.query
-  // console.log('ADVANCED QUERY: ', model)
+
   const reqQuery = { ...req.query }
 
   // Fields to exclude
   const removeFields = ['select', 'sort', 'page', 'limit']
-
+  
   // Loop over removeFields and delete them reqQuery
   removeFields.forEach((param) => delete reqQuery[param])
 
@@ -18,8 +17,9 @@ const advancedQueries = (model, populate) => async (req, res, next) => {
   queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, (match) => `$${match}`)
 
   // Match user with model
-  let query = model.find({ user: req.user.id }, JSON.parse(queryStr))
-  // console.log('QUERY: ', query);
+  const parsed =  JSON.parse(queryStr)
+
+  let query = model.find({ user: req.user.id,...parsed })
 
   // Select
   if (req.query.select) {
