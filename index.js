@@ -59,8 +59,7 @@ app.use(
       `http://localhost`,
       `https://localhost`,
       `https://techbudget.io`,
-      `https://www.techbudget.io`,
-      `https://techbudget.io`,
+      `https://www.techbudget.io`
     ],
   })
 )
