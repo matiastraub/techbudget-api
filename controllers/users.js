@@ -160,10 +160,15 @@ exports.getAllFiles = asyncHandler(async (req, res, next) => {
 
   const album = req.params.album ? `/${req.params.album}` : ''
 
-  const uploadPath = path.join(
-    __dirname,
-    `../public/uploads/users/${req.params.id}${album}`
-  )
+  const myPath = `../public/uploads/users/${req.params.id}/${album}`
+
+  const uploadPath = path.join(__dirname, myPath)
+
+  //Create user folder if it does not exist
+  if (!fs.existsSync(uploadPath)) {
+    fs.mkdirSync(uploadPath)
+  }
+
   fs.readdir(uploadPath, async (err, files) => {
     if (err) {
       next(new ErrorResponse('Unable to scan directory', 500))
