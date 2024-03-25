@@ -8,7 +8,7 @@ const { isDir } = require('../utils/file')
 const config = require('../config/config')
 
 // @desc    Get all Users
-// @route   GET /api/v1/users
+// @route   GET /api/users
 // @access  Private
 exports.getUsers = asyncHandler(async (req, res) => {
   const users = await User.find(req.query)
@@ -16,7 +16,7 @@ exports.getUsers = asyncHandler(async (req, res) => {
 })
 
 // @desc    Update user details
-// @route   PUT /api/v1/user
+// @route   PUT /api/user
 // @access  Private
 exports.updateDetails = asyncHandler(async (req, res) => {
   const fieldsToUpdate = {
@@ -31,7 +31,7 @@ exports.updateDetails = asyncHandler(async (req, res) => {
 })
 
 // @desc    Get all Users
-// @route   GET /api/v1/Users/:id
+// @route   GET /api/users/:id
 // @access  Private
 exports.getUser = asyncHandler(async (req, res, next) => {
   const user = await User.findById(req.params.id)
@@ -42,7 +42,7 @@ exports.getUser = asyncHandler(async (req, res, next) => {
 })
 
 // @desc    Create a User
-// @route   POST /api/v1/Users
+// @route   POST /api/users
 // @access  Private
 exports.createUser = asyncHandler(async (req, res) => {
   const user = await User.create(req.body)
@@ -50,7 +50,7 @@ exports.createUser = asyncHandler(async (req, res) => {
 })
 
 // @desc    Update a given User
-// @route   PUT /api/v1/users/:id
+// @route   PUT /api/users/:id
 // @access  Private
 exports.updateUser = asyncHandler(async (req, res, next) => {
   const user = await User.findByIdAndUpdate(req.params.id, req.body, {
@@ -64,7 +64,7 @@ exports.updateUser = asyncHandler(async (req, res, next) => {
 })
 
 // @desc    Delete a given User
-// @route   DELETE /api/v1/users/:id
+// @route   DELETE /api/users/:id
 // @access  Private
 exports.deleteUser = asyncHandler(async (req, res, next) => {
   const user = await User.findByIdAndDelete(req.params.id)
@@ -75,7 +75,7 @@ exports.deleteUser = asyncHandler(async (req, res, next) => {
 })
 
 // @desc    Get users within a radius
-// @route   GET /api/v1/users/:zipcode/:distance
+// @route   GET /api/users/:zipcode/:distance
 // @access  Private
 exports.getUsersByRadius = asyncHandler(async (req, res, next) => {
   const { zipcode, distance } = req.params
@@ -98,7 +98,7 @@ exports.getUsersByRadius = asyncHandler(async (req, res, next) => {
 })
 
 // @desc    Upload picture for a given user
-// @route   PUT /api/v1/users/:id/photo
+// @route   PUT /api/users/:id/photo
 // @access  Private
 exports.userPhotoUpload = asyncHandler(async (req, res, next) => {
   const user = await User.findById(req.params.id)
@@ -146,7 +146,7 @@ exports.userPhotoUpload = asyncHandler(async (req, res, next) => {
 })
 
 // @desc    Get all the files for a given user
-// @route   PUT /api/v1/users/:id/files
+// @route   PUT /api/users/:id/files
 // @access  Private
 exports.getAllFiles = asyncHandler(async (req, res, next) => {
   if (req.params.id !== req.user.id) {

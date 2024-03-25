@@ -59,7 +59,7 @@ app.use(
       `http://localhost`,
       `https://localhost`,
       `https://techbudget.io`,
-      `https://www.techbudget.io`
+      `https://www.techbudget.io`,
     ],
   })
 )
@@ -132,7 +132,7 @@ const server = app.listen(port, () => {
 // Handle unhandle
 process.on('unhandledRejection', (err) => {
   // eslint-disable-next-line no-console
-  console.log('Unhandle rejections ', err.message)
+  console.log('Unhandle rejections: ', err.message)
   // Close server
   server.close(() => process.exit(1))
 })
