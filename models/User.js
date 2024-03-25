@@ -105,6 +105,11 @@ const UserSchema = new mongoose.Schema({
       type: String,
     },
   ],
+  wallets: [
+    {
+      type: Object,
+    },
+  ],
 })
 
 // Encrypt password unsing bcrypt
