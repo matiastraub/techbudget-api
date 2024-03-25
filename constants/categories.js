@@ -1,4 +1,12 @@
-exports.fixCategories = ['Bank', 'Rent', 'Hydro', 'Internet', 'Phone', 'Rent']
+exports.fixCategories = [
+  'Bank',
+  'Rent',
+  'Hydro',
+  'Internet',
+  'Phone',
+  'Rent',
+  'Gas',
+]
 
 exports.varCategories = [
   'Car',
