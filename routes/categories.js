@@ -8,17 +8,15 @@ const {
   getCategory,
   createCategory,
   updateCategory,
+  deleteCategory,
 } = require('../controllers/categories')
 
-const Category = require('../models/Category')
-const advancedQueries = require('../middleware/advancedQueries')
+router.route('/').get(protect, getCategories).post(protect, createCategory)
 
 router
-  .route('/')
-  //.get(protect, advancedQueries(Category), getCategories)
-  .get(protect, getCategories)
-  .post(protect, createCategory)
-
-router.route('/:id').get(protect, getCategory).put(protect, updateCategory)
+  .route('/:id')
+  .get(protect, getCategory)
+  .put(protect, updateCategory)
+  .delete(protect, deleteCategory)
 
 module.exports = router
