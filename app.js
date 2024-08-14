@@ -30,6 +30,7 @@ const transactionsRouter = require('./routes/transactions')
 const usersRouter = require('./routes/users')
 const authRouter = require('./routes/auth')
 const categoriesRouter = require('./routes/categories')
+const countriesRouter = require('./routes/countries')
 
 // Body parser
 app.use(express.json())
@@ -40,7 +41,7 @@ app.use(cookieParser())
 // Load env variables
 dotenv.config({ path: './config/config.env' })
 
-// Connect to DB
+// Connect to MongoDB
 connectDB()
 
 app.set('view engine', 'ejs')
@@ -106,6 +107,7 @@ app.use(`${config.apiUrl}/transactions`, transactionsRouter)
 app.use(`${config.apiUrl}/users`, usersRouter)
 app.use(`${config.apiUrl}/auth`, authRouter)
 app.use(`${config.apiUrl}/categories`, categoriesRouter)
+app.use(`${config.apiUrl}/countries`, countriesRouter)
 
 const uploadPath = path.join(__dirname, 'public/uploads')
 

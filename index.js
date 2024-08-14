@@ -3,9 +3,8 @@ const port = process.env.PORT || 1337
 
 const server = app.listen(port, () => {
   // eslint-disable-next-line no-console
-  console.log(
-    `Server running on ${process.env.NODE_ENV} and port ${port}`.yellow.bold
-  )
+  console.log(`Enviroment: `.yellow + `${process.env.NODE_ENV}`.red)
+  console.log(`Port: `.yellow + `${port}`.red)
 })
 
 // Handle unhandle

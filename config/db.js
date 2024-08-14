@@ -1,10 +1,13 @@
 const mongoose = require('mongoose')
 
 const connectDB = async () => {
-  const mongoUri =
-    process.env.NODE_ENV === 'production'
-      ? process.env.MONGO_URI
-      : process.env.MONGO_URI_DEV
+  const isProd = process.env.NODE_ENV === 'production'
+  const mongoUri = isProd
+    ? process.env.MONGO_URI
+    : process.env.MONGO_URI_DEV + process.env.MONGO_DB
+  if (!isProd) {
+    console.log(`Mongo DB: `.yellow + `${mongoUri}`.red)
+  }
 
   const conn = await mongoose.connect(mongoUri, {
     useNewUrlParser: true,
