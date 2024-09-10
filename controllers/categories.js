@@ -2,16 +2,11 @@ const ErrorResponse = require('../utils/ErrorResponse')
 const asyncHandler = require('../middleware/async')
 const Category = require('../models/Category')
 
-const restrictCategories = ['AWS', 'Fido', 'Singing', 'SAQ', 'Give', 'Beer']
-
 // @desc    Get all categories
 // @route   GET /api/v1/categories/:user
 // @access  Private
 exports.getCategories = asyncHandler(async (req, res) => {
-  const category = await Category.find()
-  const categories = category.filter(
-    (cat) => !restrictCategories.includes(cat.name)
-  )
+  const categories = await Category.find()
   if (!categories) {
     next(new ErrorResponse(`Not found with id: ${req.params.id}`, 404))
   }
