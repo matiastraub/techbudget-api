@@ -17,8 +17,10 @@ const advancedQueries = (model, populate) => async (req, res, next) => {
 
   // Match user with model
   const parsed = JSON.parse(queryStr)
+  const userId = req.user.id
+  const objectFind = userId ? { user: userId, ...parsed } : parsed
 
-  let query = model.find({ user: req.user.id, ...parsed })
+  let query = model.find(objectFind)
 
   // Select
   if (req.query.select) {
