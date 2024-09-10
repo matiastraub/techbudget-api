@@ -6,7 +6,7 @@ const connectDB = async () => {
     ? process.env.MONGO_URI
     : process.env.MONGO_URI_DEV + process.env.MONGO_DB
   if (!isProd) {
-    console.log(`Mongo DB: `.yellow + `${mongoUri}`.red)
+    console.log(`Mongo DB: `.yellow + `${mongoUri}`.green)
   }
 
   const conn = await mongoose.connect(mongoUri, {

@@ -10,7 +10,7 @@ const connection = {
 }
 
 if (!isProd) {
-  console.log(`MySQL DB: `.yellow + `${connection.database}`.red)
+  console.log(`MySQL DB: `.yellow + `${connection.database}`.green)
 }
 
 const pool = mysql.createPool(connection)
