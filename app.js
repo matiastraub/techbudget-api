@@ -31,6 +31,7 @@ const usersRouter = require('./routes/users')
 const authRouter = require('./routes/auth')
 const categoriesRouter = require('./routes/categories')
 const countriesRouter = require('./routes/countries')
+const cryptoRouter = require('./routes/external')
 
 // Body parser
 app.use(express.json())
@@ -108,6 +109,7 @@ app.use(`${config.apiUrl}/users`, usersRouter)
 app.use(`${config.apiUrl}/auth`, authRouter)
 app.use(`${config.apiUrl}/categories`, categoriesRouter)
 app.use(`${config.apiUrl}/countries`, countriesRouter)
+app.use(`${config.apiUrl}/crypto`, cryptoRouter)
 
 const uploadPath = path.join(__dirname, 'public/uploads')
 
