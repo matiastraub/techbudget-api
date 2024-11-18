@@ -128,7 +128,7 @@ const sendEmail = async (options, next) => {
  * @param {*} next
  */
 const sendGGGEmail = async (options, next) => {
-  const url = config.apiGogogol.sendEmail
+  const url = process.env.GGG_API_URL
   const postData = {
     username: process.env.GGG_USERNAME,
     pass: process.env.GGG_PASS,

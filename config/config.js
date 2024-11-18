@@ -16,8 +16,5 @@ module.exports = {
     development: `http://localhost:3000`,
     production: `https://www.techbudget.io`,
   },
-  apiGogogol: {
-    sendEmail: `https://www.gogogol.com/lib/endpoints/tb.POST.sendEmail.php`,
-  },
   emailSender: 'gogogol',
 }
