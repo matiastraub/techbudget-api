@@ -15,7 +15,8 @@
 /build
 
 # data
-/data
+/data/collections
+/data/mock
 
 # public
 /public/uploads/users/*
