@@ -21,6 +21,7 @@
 # public
 /public/uploads/users/*
 /public/uploads/pic-bill-vector.jpg
+/public/images
 
 # internals
 /controllers/fins.js
