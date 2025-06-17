@@ -11,6 +11,9 @@ module.exports = {
     miles: 3963,
   },
   cookiesExpire: 24 * 60 * 60 * 1000,
+  events: {
+    cryptoRefresh: 5 * 1000,
+  },
   tokenExpires: 10 * 1000,
   domain: {
     development: `http://localhost:5173`,

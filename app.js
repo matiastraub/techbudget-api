@@ -33,6 +33,7 @@ const categoriesRouter = require('./routes/categories')
 const countriesRouter = require('./routes/countries')
 const cryptoRouter = require('./routes/crypto')
 const geolocationRouter = require('./routes/geolocation')
+const sseRouter = require('./routes/sse')
 
 // Body parser
 app.use(express.json())
@@ -112,6 +113,7 @@ app.use(`${config.apiUrl}/categories`, categoriesRouter)
 app.use(`${config.apiUrl}/countries`, countriesRouter)
 app.use(`${config.apiUrl}/crypto`, cryptoRouter)
 app.use(`${config.apiUrl}/geolocation`, geolocationRouter)
+app.use(`${config.apiUrl}/events`, sseRouter)
 
 const uploadPath = path.join(__dirname, 'public/uploads')
 
