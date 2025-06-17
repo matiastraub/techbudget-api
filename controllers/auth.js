@@ -59,14 +59,16 @@ exports.register = asyncHandler(async (req, res, next) => {
     //city,
     //address
   })
-  await sendVerifyEmailWithTokenEmail(
-    req,
-    res,
-    next,
-    user,
-    token,
-    config.emailSender
-  )
+  if (process.env.NODE_ENV === 'production') {
+    await sendVerifyEmailWithTokenEmail(
+      req,
+      res,
+      next,
+      user,
+      token,
+      config.emailSender
+    )
+  }
   return sendTokenResponse(user, 200, res)
 })
 
