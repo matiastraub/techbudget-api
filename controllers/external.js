@@ -1,12 +1,11 @@
 const ErrorResponse = require('../utils/ErrorResponse')
 const asyncHandler = require('../middleware/async')
 const axios = require('axios')
-const apiCrypto = require('../data/mock/crypto/apiCrypto.json')
+const apiCrypto = require('../data/mock/crypto/apiCryptoMin.json')
 const apiCryptoHistory = require('../data/mock/crypto/apiCryptoHistory.json')
 
 //Crypto
-
-exports.getCrypto = asyncHandler(async (req, res) => {
+exports.getCryptoResponse = async () => {
   const url = `${process.env.CRYPTO_RAPID_API_URL}/coins`
   const options = {
     method: 'GET',
@@ -22,8 +21,18 @@ exports.getCrypto = asyncHandler(async (req, res) => {
     },
   }
   const mockData = process.env.CRYPTO_RAPID_MOCK_API_DATA === 'true'
+  try {
   const resp = mockData ? apiCrypto : await axios.request(options)
+
   const serverCoins = mockData ? resp.data : resp?.data?.data?.coins
+  return serverCoins
+  } catch(e) {
+    console.log('error',e)
+  }
+}
+
+exports.getCrypto = asyncHandler(async (req, res) => {
+  const serverCoins = await this.getCryptoResponse()
   res.status(200).json({ success: true, data: serverCoins })
 })
 

@@ -8,6 +8,7 @@ const {
 } = require('../utils/sendEmail')
 const User = require('../models/User')
 const config = require('../config/config')
+const { sendEvent } = require('../store/clients')
 
 /*
     @desc Send token response
@@ -112,6 +113,8 @@ exports.verifyEmail = asyncHandler(async (req, res, next) => {
   user.verifyEmailExpire = undefined
   user.isVerified = true
   await user.save({ validateBeforeSave: false })
+  //Trigger server-sent event
+  sendEvent(user?._id.toString(), { message: 'emailVerified' })
   return res.status(200).json({
     success: true,
     data: user,
