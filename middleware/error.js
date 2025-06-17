@@ -4,8 +4,9 @@ const errorHandler = (err, req, res, next) => {
   let error = { ...err }
   let message = ''
 
-  if (res.headerSent) {
-    next(err)
+  if (res.headersSent) {
+    console.warn('Headers already sent. Skipping error handler.')
+    return
   }
 
   // Mongoose bad objectId
@@ -26,7 +27,7 @@ const errorHandler = (err, req, res, next) => {
 
   res
     .status(error.statusCode || 500)
-    .json({ success: false, error: err.message || 'Server error' })
+    .json({ success: false, error: error.message || 'Server error' })
 }
 
 module.exports = errorHandler
