@@ -35,6 +35,7 @@ Supports advanced filtering and query customization:
 
 ---
 
+```
 TechBudgetAPI/
 ├── config/ # App configuration
 │ └── config.env # Your environment variables (rename from env.env)
@@ -45,6 +46,7 @@ TechBudgetAPI/
 ├── utils/ # Utility functions
 ├── server.js # Main server entry point
 └── README.md # Project documentation
+```
 
 ---
 
@@ -89,6 +91,7 @@ npm start
 📡 API Overview
 Base URL: /api/v1
 
+```
 Method Endpoint Description
 GET /transactions Get all transactions
 POST /transactions Create a new transaction
@@ -98,6 +101,7 @@ DELETE /transactions/:id Delete a transaction
 GET /stream Live updates via SSE
 POST /auth/register Register new user
 POST /auth/login User login (JWT issued)
+```
 
 🔄 Server-Sent Events (SSE)
 Enable real-time features by listening to the /stream endpoint.
