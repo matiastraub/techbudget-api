@@ -100,6 +100,26 @@ const UserSchema = new mongoose.Schema({
       type: String,
     },
   ],
+  pages: {
+    required: false,
+    type: [
+      {
+        type: String,
+        enum: [
+          'dashboard',
+          'addtransaction',
+          'expenses',
+          'editexpenses',
+          'crypto',
+          'categories',
+          'paymentmethod',
+          'stocks',
+          'lab',
+          'user',
+        ],
+      },
+    ],
+  },
   sources: [
     {
       type: String,
