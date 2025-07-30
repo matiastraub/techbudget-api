@@ -9,7 +9,7 @@
 .pnp.js
 
 # testing
-/coverage
+/tests
 
 # production
 /build
@@ -27,6 +27,11 @@
 /controllers/fins.js
 /models/Fin.js
 views/index.ejs
+/services
+
+#controllers
+/controllers/downloadImage.js
+/controllers/authController.js
 
 
 # misc
