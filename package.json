@@ -1,5 +1,5 @@
 {
-  "name": "Tech Budget API",
+  "name": "techbudget-api",
   "version": "1.0.0",
   "description": "API for Tech Budget application",
   "main": "index.js",
