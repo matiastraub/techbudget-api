@@ -1,244 +1,240 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-    <head>
+  <head>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap"
+    />
+    <style>
+      :after,
+      :before {
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+      }
 
-        <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap"
-        />   
-        <style>
-            :after,
-            :before {
-                -webkit-box-sizing: border-box;
-                -moz-box-sizing: border-box;
-                box-sizing: border-box;
-            }
+      * {
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+      }
 
-            * {
-                -webkit-box-sizing: border-box;
-                -moz-box-sizing: border-box;
-                box-sizing: border-box;
-            }
+      body {
+        width: 90%;
+        padding: 0;
+        margin: 20px;
+        font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+        font-weight: 400;
+        font-size: 14px;
+        line-height: 1.42857143;
+        color: rgb(51, 51, 51);
+        background-color: rgb(245, 245, 245);
+      }
 
-            body {
-                width: 90%;
-                padding: 0;
-                margin: 20px;
-                font-family: "Roboto","Helvetica","Arial",sans-serif;
-                font-weight: 400;
-                font-size: 14px;
-                line-height: 1.42857143;
-                color: rgb(51, 51, 51);
-                background-color: rgb(245, 245, 245);
-            }
+      .col-xs-12 {
+        width: 100%;
+      }
 
+      .col-xs-1,
+      .col-xs-10,
+      .col-xs-11,
+      .col-xs-12,
+      .col-xs-2,
+      .col-xs-3,
+      .col-xs-4,
+      .col-xs-5,
+      .col-xs-6,
+      .col-xs-7,
+      .col-xs-8,
+      .col-xs-9 {
+        float: left;
+      }
 
-            .col-xs-12 {
-                width: 100%;
-            }
+      .col-lg-1,
+      .col-lg-10,
+      .col-lg-11,
+      .col-lg-12,
+      .col-lg-2,
+      .col-lg-3,
+      .col-lg-4,
+      .col-lg-5,
+      .col-lg-6,
+      .col-lg-7,
+      .col-lg-8,
+      .col-lg-9,
+      .col-md-1,
+      .col-md-10,
+      .col-md-11,
+      .col-md-12,
+      .col-md-2,
+      .col-md-3,
+      .col-md-4,
+      .col-md-5,
+      .col-md-6,
+      .col-md-7,
+      .col-md-8,
+      .col-md-9,
+      .col-sm-1,
+      .col-sm-10,
+      .col-sm-11,
+      .col-sm-12,
+      .col-sm-2,
+      .col-sm-3,
+      .col-sm-4,
+      .col-sm-5,
+      .col-sm-6,
+      .col-sm-7,
+      .col-sm-8,
+      .col-sm-9,
+      .col-xs-1,
+      .col-xs-10,
+      .col-xs-11,
+      .col-xs-12,
+      .col-xs-2,
+      .col-xs-3,
+      .col-xs-4,
+      .col-xs-5,
+      .col-xs-6,
+      .col-xs-7,
+      .col-xs-8,
+      .col-xs-9 {
+        position: relative;
+        min-height: 1px;
+        padding-right: 15px;
+        padding-left: 15px;
+      }
 
-            .col-xs-1,
-            .col-xs-10,
-            .col-xs-11,
-            .col-xs-12,
-            .col-xs-2,
-            .col-xs-3,
-            .col-xs-4,
-            .col-xs-5,
-            .col-xs-6,
-            .col-xs-7,
-            .col-xs-8,
-            .col-xs-9 {
-                float: left;
-            }
+      .container-fluid {
+        padding-right: 15px;
+        padding-left: 15px;
+        margin-right: auto;
+        margin-left: auto;
+      }
 
+      h1,
+      h2,
+      .techbudgetTeam {
+        color: rgb(47, 72, 88);
+      }
 
-            .col-lg-1,
-            .col-lg-10,
-            .col-lg-11,
-            .col-lg-12,
-            .col-lg-2,
-            .col-lg-3,
-            .col-lg-4,
-            .col-lg-5,
-            .col-lg-6,
-            .col-lg-7,
-            .col-lg-8,
-            .col-lg-9,
-            .col-md-1,
-            .col-md-10,
-            .col-md-11,
-            .col-md-12,
-            .col-md-2,
-            .col-md-3,
-            .col-md-4,
-            .col-md-5,
-            .col-md-6,
-            .col-md-7,
-            .col-md-8,
-            .col-md-9,
-            .col-sm-1,
-            .col-sm-10,
-            .col-sm-11,
-            .col-sm-12,
-            .col-sm-2,
-            .col-sm-3,
-            .col-sm-4,
-            .col-sm-5,
-            .col-sm-6,
-            .col-sm-7,
-            .col-sm-8,
-            .col-sm-9,
-            .col-xs-1,
-            .col-xs-10,
-            .col-xs-11,
-            .col-xs-12,
-            .col-xs-2,
-            .col-xs-3,
-            .col-xs-4,
-            .col-xs-5,
-            .col-xs-6,
-            .col-xs-7,
-            .col-xs-8,
-            .col-xs-9 {
-                position: relative;
-                min-height: 1px;
-                padding-right: 15px;
-                padding-left: 15px;
-            }
+      h1 {
+        margin: 0px;
+        /* font-family: Roboto, Helvetica, Arial, sans-serif; */
+        font-size: 1.5rem;
+        line-height: 1.334;
+        letter-spacing: 0em;
+        /* color: rgb(0, 214, 112); */
+        color: rgb(47, 72, 88);
+        -webkit-box-flex: 1;
+        flex-grow: 1;
+        font-weight: 500;
+        /* margin-left: 29px; */
+      }
 
-            .container-fluid {
-                padding-right: 15px;
-                padding-left: 15px;
-                margin-right: auto;
-                margin-left: auto;
-            }
+      h2 {
+        font-size: 1.2em;
+        text-align: left;
+        width: 400px;
+        color: rgb(0, 214, 112);
+        /* rgb(0, 107, 134); */
+      }
 
-            h1,h2,
-            .techbudgetTeam {
-                color: rgb(47, 72, 88);
-            }
-            
+      .logo {
+        height: 32px;
+        margin-left: -5px;
+        margin-top: -1px;
+        position: absolute;
+      }
 
-            h1 {
-                margin: 0px;
-                /* font-family: Roboto, Helvetica, Arial, sans-serif; */
-                font-size: 1.5rem;
-                line-height: 1.334;
-                letter-spacing: 0em;
-                /* color: rgb(0, 214, 112); */
-                color: rgb(47, 72, 88);
-                -webkit-box-flex: 1;
-                flex-grow: 1;
-                font-weight: 500;
-                /* margin-left: 29px; */
-            }
+      .pin,
+      .verifyLink {
+        text-align: left;
+        margin-left: 10px;
+        color: #00909e;
+      }
 
-            h2 {
-                font-size: 1.2em;
-                text-align: left;
-                width: 400px;
-                color: rgb(0, 214, 112);
-                /* rgb(0, 107, 134); */
-            }
+      .btnVerify {
+        /* font-family: Lucida Grande, Lucida Sans, Arial, sans-serif; */
+        margin: auto;
+        width: 80px;
+      }
 
-            .logo {
-                height: 32px;
-                margin-left: -5px;
-                margin-top: -1px;
-                position: absolute;
-            }
+      .pin {
+        margin-top: 4px;
+        font-size: 1.4em;
+        color: rgb(0, 107, 134);
+        font-weight: 900;
+        letter-spacing: 4px;
+      }
 
-            .pin,
-            .verifyLink {
-                text-align: left;
-                margin-left: 10px;
-                color: #00909E;
-            }
+      .legal,
+      .tm {
+        font-size: 0.8em;
+        color: rgb(0, 107, 134);
+      }
 
-            .btnVerify {
-                /* font-family: Lucida Grande, Lucida Sans, Arial, sans-serif; */
-                margin: auto;
-                width: 80px;
-            }
+      @media screen and (min-width: 650px) {
+        .col-xs-12,
+        .col-sm-1,
+        .col-md-1,
+        .col-lg-1 {
+          text-align: left !important;
+        }
 
-            .pin {
-                margin-top: 4px;
-                font-size: 1.4em;
-                color: rgb(0, 107, 134);
-                font-weight: 900;
-                letter-spacing: 4px;
-            }
+        .btn {
+          margin-left: 150px !important;
+        }
 
-            .legal,
-            .tm {
-                font-size: 0.8em;
-                color: rgb(0, 107, 134);
-            }
+        .legal {
+          width: 90%;
+          width: 600px;
+        }
+      }
+    </style>
+  </head>
 
-
-            @media screen and (min-width: 650px) {
-
-                .col-xs-12,
-                .col-sm-1,
-                .col-md-1,
-                .col-lg-1 {
-                    text-align: left !important;
-                }
-
-                .btn {
-                    margin-left: 150px !important;
-                }
-
-                .legal {
-                    width: 90%;
-                    width: 600px;
-                }
-            }
-        </style>
-
-
-    </head>
-
-    <body>
-        <div class="container-fluid col-sm-12 col-md-12 col-lg-12">
-            <div id="logo-container">
-                <!-- <img class="logo" src="{logo}" alt="logo" /> -->
-                <h1 style="display: inline-block">TechBudget</h1>
-            </div>
-            <br>
-            <div class="row">
-                <h2>Welcome {name}!</h2>
-            </div>
-            <br>
-            <p><i>Congratulations!</i> You have done an important step today to start taking control of your finances.</p>
-            <br>
-            <p>Please verify your account by clicking on the following link:</p>
-            <br>
-            <div class="row">
-                <a class="verifyLink" href="{link}">Verify Email</a>
-            </div>
-            <!-- <br><br>
+  <body>
+    <div class="container-fluid col-sm-12 col-md-12 col-lg-12">
+      <div id="logo-container">
+        <!-- <img class="logo" src="{logo}" alt="logo" /> -->
+        <h1 style="display: inline-block">TechBudget</h1>
+      </div>
+      <br />
+      <div class="row">
+        <h2>Welcome {name}!</h2>
+      </div>
+      <br />
+      <p>
+        <i>Congratulations!</i> You have done an important step today to start
+        taking control of your finances.
+      </p>
+      <br />
+      <p>Please verify your account by clicking on the following link:</p>
+      <br />
+      <div class="row">
+        <a class="verifyLink" href="{link}" target="_private">Verify Email</a>
+      </div>
+      <!-- <br><br>
             <p>If the link does not work; please login and enter the following code:</p>
             <div class="row">
                 <div  class="pin">{pin}</div>
             </div> -->
-            <br><br><br>
-            <i>We can't wait to see you there!</i>
-            <br><br>
-            <p>Sincerily,</p>
-            <p class="techbudgetTeam">The TechBudget Team</p>
-            <br>
-            <p class="legal">
-                This communication is for use only by the intended recipient(s) named above and contains information that
-                may be privileged and confidential. It is not to be redistributed without permission. If you are not the
-                intended recipient, please destroy all copies. Thank you.
-            </p>
+      <br /><br /><br />
+      <i>We can't wait to see you there!</i>
+      <br /><br />
+      <p>Sincerily,</p>
+      <p class="techbudgetTeam">The TechBudget Team</p>
+      <br />
+      <p class="legal">
+        This communication is for use only by the intended recipient(s) named
+        above and contains information that may be privileged and confidential.
+        It is not to be redistributed without permission. If you are not the
+        intended recipient, please destroy all copies. Thank you.
+      </p>
 
-            <p class="tm">TechBudget &trade;</p>
-            <br><br>
-            <!-- <p><a href="unsubscribe.php">Unsubscribe</a></p> -->
-        </div>
-
-    </body>
+      <p class="tm">TechBudget &trade;</p>
+      <br /><br />
+      <!-- <p><a href="unsubscribe.php">Unsubscribe</a></p> -->
+    </div>
+  </body>
 </html>
