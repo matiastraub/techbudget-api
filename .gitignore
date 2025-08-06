@@ -45,3 +45,6 @@ createDir.js
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Encuestas
+/prompts/encuesta.md
