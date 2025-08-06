@@ -1,16 +1,21 @@
 const ErrorResponse = require('../../utils/ErrorResponse')
 const asyncHandler = require('../../middleware/async')
-const mysql = require('../../config/mysql')
+const pool = require('../../config/mysql')
 
-// @desc    Get all Countries
+// @desc    Get all countries
 // @route   GET /api/countries/
 // @access  Private
-exports.getCountries = asyncHandler((req, res, next) => {
-  //TODO: Temporary raw request as placeholder to query from a MySQL database
-  const sql = 'SELECT * FROM `countries`'
+exports.getCountries = asyncHandler(async (req, res, next) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM countries')
 
-  mysql.query(sql, (err, data) => {
-    if (err) next(new ErrorResponse(`Not found`, 404))
-    return res.status(200).json({ success: true, count: data.length, data })
-  })
+    res.status(200).json({
+      success: true,
+      count: rows.length,
+      data: rows,
+    })
+  } catch (err) {
+    console.error('DB Error:', err)
+    return next(new ErrorResponse('Error fetching countries', 500))
+  }
 })

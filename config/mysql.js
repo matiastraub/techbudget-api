@@ -1,6 +1,6 @@
 require('dotenv').config({ path: './config/config.env' })
 const isProd = process.env.NODE_ENV === 'production'
-const mysql = require('mysql')
+const mysql = require('mysql2/promise')
 
 const connection = {
   host: process.env.MYSQL_HOST,
