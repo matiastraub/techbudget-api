@@ -27,6 +27,7 @@ const connectDB = require('./config/db')
 
 // Route files
 const transactionsRouter = require('./routes/transactions')
+const encuestasRouter = require('./routes/encuestas')
 const usersRouter = require('./routes/users')
 const authRouter = require('./routes/auth')
 const categoriesRouter = require('./routes/categories')
@@ -34,6 +35,7 @@ const countriesRouter = require('./routes/countries')
 const cryptoRouter = require('./routes/crypto')
 const geolocationRouter = require('./routes/geolocation')
 const sseRouter = require('./routes/sse')
+const agentsRouter = require('./routes/agents')
 
 // Body parser
 app.use(express.json())
@@ -58,6 +60,7 @@ app.use(
     allowedHeaders: ['Content-Type', 'Authorization'],
     origin: [
       `http://localhost:${config.port}`,
+      `http://localhost:${config.portTech}`,
       `http://localhost`,
       `https://localhost`,
       `https://techbudget.io`,
@@ -107,6 +110,7 @@ app.use(hpp())
 
 // Mount routers
 app.use(`${config.apiUrl}/transactions`, transactionsRouter)
+app.use(`${config.apiUrl}/encuestas`, encuestasRouter)
 app.use(`${config.apiUrl}/users`, usersRouter)
 app.use(`${config.apiUrl}/auth`, authRouter)
 app.use(`${config.apiUrl}/categories`, categoriesRouter)
@@ -114,6 +118,7 @@ app.use(`${config.apiUrl}/countries`, countriesRouter)
 app.use(`${config.apiUrl}/crypto`, cryptoRouter)
 app.use(`${config.apiUrl}/geolocation`, geolocationRouter)
 app.use(`${config.apiUrl}/events`, sseRouter)
+app.use(`${config.apiUrl}/agents`, agentsRouter)
 
 const uploadPath = path.join(__dirname, 'public/uploads')
 

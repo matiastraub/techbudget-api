@@ -2,6 +2,7 @@ module.exports = {
   //apiUrl: "/api/v1",
   apiUrl: '',
   port: 5173,
+  portTech: 5174,
   limiter: {
     windowMs: 10 * 60 * 1000, // 10 minutes
     max: 100, // 100 requests max
