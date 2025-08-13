@@ -30,6 +30,10 @@ const UserSchema = new mongoose.Schema({
     ],
     lowercase: true,
   },
+  lang: {
+    type: String,
+    default: 'es',
+  },
   role: {
     type: String,
     enum: ['user', 'admin'],
