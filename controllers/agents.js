@@ -4,10 +4,43 @@ const matter = require('gray-matter')
 const path = require('path')
 const twilio = require('twilio')
 const fs = require('fs/promises')
+const { generateFakeCall, fixData } = require('../utils/encuestas')
+
+const START_FAKE_CALLS = false
+let fakeCalls = []
+
+if (START_FAKE_CALLS) {
+  // Generate new call every 5 seconds
+  setInterval(() => {
+    fakeCalls.unshift(generateFakeCall())
+    if (fakeCalls.length > 10000) fakeCalls.pop()
+  }, 5000)
+}
 
 // @desc    Get call
 // @route   GET /api/v1/categories/:user
 // @access  Private
+exports.getCallFake = asyncHandler((req, res) => {
+  res.status(200).json({
+    success: true,
+    data: { isMock: true, data: fakeCalls, total: fakeCalls.length },
+  })
+})
+
+exports.getCallFixData = asyncHandler((req, res) => {
+  const resp = {
+    success: true,
+    data: {
+      data: fixData,
+      total: 12,
+    },
+  }
+  res.status(200).json({
+    success: true,
+    data: { isMock: true, data: resp.data.data, total: resp.data.total },
+  })
+})
+
 exports.getCall = asyncHandler(async (req, res) => {
   const url = process.env.ULTRAVOX_API_URL
   const apiKey = process.env.ULTRAVOX_X_API_KEY
@@ -56,7 +89,7 @@ exports.getCall = asyncHandler(async (req, res) => {
 // @access  Private
 exports.createCall = asyncHandler(async (req, res) => {
   try {
-    return await generateOutgoingCall(req)
+    return await generateOutgoingCall(req, res)
   } catch (error) {
     const errorMessage =
       typeof error === 'object' && error !== null && 'message' in error
@@ -75,9 +108,10 @@ async function generateOutgoingCall(req, res) {
   const parsed = matter(fileContent)
 
   const prompt = parsed.content // Markdown body
-  console.log('prompt: ', prompt)
+
   try {
     const { model, voice, temperature, phone } = req.body
+
     const {
       TWILIO_ACCOUNT_SID,
       TWILIO_AUTH_TOKEN,
@@ -94,12 +128,12 @@ async function generateOutgoingCall(req, res) {
       model: model || ULTRAVOX_MODEL,
       voice: voice || ULTRAVOX_VOICE,
       temperature: temperature || ULTRAVOX_TEMPERATURE,
-      firstSpeakerSettings: { user: {} }, // For outgoing calls, the user will answer the call (i.e. speak first)
+      // firstSpeakerSettings: { user: {} }, // For outgoing calls, the user will answer the call (i.e. speak first)
+      firstSpeakerSettings: { agent: {} },
       medium: { twilio: {} },
     }
     const ultravoxResponse = await createUltravoxCall(callConfig)
 
-    //res.json(ultravoxResponse)
     if (!ultravoxResponse.joinUrl) {
       throw new Error('No joinUrl received from Ultravox API')
     }
@@ -124,11 +158,13 @@ async function generateOutgoingCall(req, res) {
     console.log('🎉 Twilio outbound phone call initiated successfully!')
     console.log(`📋 Twilio Call SID: ${call.sid}`)
     console.log(`📞 Calling ${phone} from ${TWILIO_PHONE_NUMBER}`)
+
     res.status(200).json({
-      success: true,
-      data: {
-        msg: '🎉 Twilio outbound phone call initiated successfully!',
-      },
+      status: 'success',
+      msg: '🎉 Twilio outbound phone call initiated successfully!',
+      sid: call.sid,
+      from: TWILIO_PHONE_NUMBER,
+      to: phone,
     })
   } catch (error) {
     if (error instanceof Error) {

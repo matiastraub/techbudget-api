@@ -3,25 +3,34 @@ const router = express.Router()
 const listsController = require('../../controllers/encuestas/lists')
 
 // For example, if you have auth middleware:
-const { protect } = require('../../middleware/auth')
+const { protect, apiAuth } = require('../../middleware/auth')
 
 // Routes
 
-// Get all calls
+// Get all list
 router.get('/', protect, listsController.getLists)
 
-// Get single call by ID
+// Get all list attempts
+router.get('/attempts', protect, listsController.getListAttempts)
+
+// Get all list attempts api
+router.get('/attempts/api', apiAuth, listsController.getListAttempts)
+
+// Get single list item by ID
 router.get('/:id', protect, listsController.getList)
 
-// Create new call
+// Create new list
 router.post('/', protect, listsController.createList)
-
+// Upload list
 router.post('/upload', listsController.uploadListsFile)
 
-// Update call by ID
+// Process the list
+router.post('/process', listsController.processList)
+
+// Update list by ID
 router.put('/:id', protect, listsController.updateList)
 
-// Delete call by ID
+// Delete list by ID
 router.delete('/:id', protect, listsController.deleteList)
 
 module.exports = router

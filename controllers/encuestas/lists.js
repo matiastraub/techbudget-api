@@ -2,6 +2,10 @@ const ErrorResponse = require('../../utils/ErrorResponse')
 const asyncHandler = require('../../middleware/async')
 const pool = require('../../config/mysql')
 
+//TODO: Temporary values while implementing campaign and other channels
+const DEFAULT_CAMPAIGN_ID = 1
+const DEFAULT_CHANNEL = 1 //Phone number
+
 // @desc    Get all lists
 // @route   GET /api/lists
 // @access  Private
@@ -12,6 +16,30 @@ exports.getLists = asyncHandler(async (req, res, next) => {
              m.id AS municipality_id, m.name AS municipality_name
       FROM lists c
       JOIN municipalities m ON c.municipality_id = m.id
+    `)
+
+    res.status(200).json({
+      success: true,
+      count: rows.length,
+      data: rows,
+    })
+  } catch (err) {
+    console.error('DB Error:', err)
+    return next(new ErrorResponse('Error fetching lists', 500))
+  }
+})
+
+// @desc    Get all list attempts
+// @route   GET /api/lists/attempts
+// @access  Private
+exports.getListAttempts = asyncHandler(async (req, res, next) => {
+  try {
+    const [rows] = await pool.query(`
+      SELECT ca.id, c.phone,  m.name AS municipality,ch.name AS channel,ca.status, ca.attempt_time AS created
+      FROM list_attempts ca
+      INNER JOIN lists c ON ca.list_id = c.id
+      INNER JOIN municipalities m ON c.municipality_id = m.id
+      INNER JOIN channels ch ON ca.channel_id = ch.id
     `)
 
     res.status(200).json({
@@ -77,6 +105,7 @@ exports.uploadListsFile = asyncHandler(async (req, res, next) => {
     row.channel = row?.canal //call', 'sms', 'whatsapp', 'telegram'
     row.address = row?.adddress
     row.other_info = row?.other_info
+
     transArray.push(row)
 
     createListFromList(row, res, next)
@@ -85,6 +114,9 @@ exports.uploadListsFile = asyncHandler(async (req, res, next) => {
 })
 
 const createListFromList = async (contact, res, next) => {
+  //HARDCODED FOR NOW
+  const campaign_id = DEFAULT_CAMPAIGN_ID
+
   const { phone, municipality, address, other_info } = contact
   if (!phone || !municipality) {
     return next(new ErrorResponse('Phone and municipality are required', 400))
@@ -106,10 +138,10 @@ const createListFromList = async (contact, res, next) => {
     // Insert contact
     const [result] = await pool.query(
       `
-      INSERT INTO lists (phone, municipality_id, address, other_info)
-      VALUES (?, ?, ?, ?)
+      INSERT INTO lists (phone, municipality_id,campaign_id, address, other_info)
+      VALUES (?, ?, ?, ?, ?)
     `,
-      [phone, municipality_id, address || null, other_info || null]
+      [phone, municipality_id, campaign_id, address || null, other_info || null]
     )
 
     res.status(201).json({
@@ -118,6 +150,7 @@ const createListFromList = async (contact, res, next) => {
         id: result.insertId,
         phone,
         municipality_id,
+        campaign_id,
         address,
         other_info,
       },
@@ -252,5 +285,36 @@ exports.deleteList = asyncHandler(async (req, res, next) => {
   } catch (err) {
     console.error('DB Error:', err)
     return next(new ErrorResponse('Error deleting contact', 500))
+  }
+})
+
+// @desc    Process list to communicate with the different channels
+// @route   POST /api/lists/process
+// @access  Private
+exports.processList = asyncHandler(async (req, res, next) => {
+  campaign_id = DEFAULT_CAMPAIGN_ID
+  channel_id = DEFAULT_CHANNEL
+
+  const listIdsToInsertQuery = `SELECT id FROM lists WHERE id NOT IN (SELECT list_id FROM list_attempts);`
+
+  const [resultIds] = await pool.query(listIdsToInsertQuery, [campaign_id])
+  const ids = resultIds.map((i) => i.id)
+  if (ids.length > 0) {
+    const values = ids.map((id) => [
+      id,
+      channel_id,
+      new Date(),
+      'pending',
+      null,
+    ])
+
+    const insertQuery = `INSERT INTO list_attempts (list_id, channel_id, attempt_time, status, notes)
+    VALUES ? ON DUPLICATE KEY UPDATE attempt_time = attempt_time`
+
+    const [resultInsert] = await pool.query(insertQuery, [values])
+    const { insertId } = resultInsert
+    res.status(200).json({ success: true, data: insertId })
+  } else {
+    res.status(404).json({ success: false, msg: 'Not Found' })
   }
 })
