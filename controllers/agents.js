@@ -5,6 +5,9 @@ const path = require('path')
 const twilio = require('twilio')
 const fs = require('fs/promises')
 const { generateFakeCall, fixData } = require('../utils/encuestas')
+const {
+  updateListAttemptStatusById,
+} = require('../controllers/encuestas/listAttempts')
 
 const START_FAKE_CALLS = false
 let fakeCalls = []
@@ -89,17 +92,14 @@ exports.getCall = asyncHandler(async (req, res) => {
 // @access  Private
 exports.createCall = asyncHandler(async (req, res) => {
   try {
-    return await generateOutgoingCall(req, res)
+    const result = await generateOutgoingCall(req)
+    return res.status(200).json(result)
   } catch (error) {
-    const errorMessage =
-      typeof error === 'object' && error !== null && 'message' in error
-        ? error?.message ?? 'Internal Server Error'
-        : 'Internal Server Error'
-    return res.status(500).json({ error: errorMessage })
+    next(error)
   }
 })
 
-async function generateOutgoingCall(req, res) {
+async function generateOutgoingCall(req) {
   const { promptName } = req.params
 
   const mdPath = path.resolve(`./prompts/${promptName}.md`)
@@ -109,102 +109,67 @@ async function generateOutgoingCall(req, res) {
 
   const prompt = parsed.content // Markdown body
 
-  try {
-    const { model, voice, temperature, phone } = req.body
+  const { model, voice, temperature, phone, listId } = req.body
 
-    const {
-      TWILIO_ACCOUNT_SID,
-      TWILIO_AUTH_TOKEN,
-      DESTINATION_PHONE_NUMBER,
-      TWILIO_PHONE_NUMBER,
-      ULTRAVOX_MODEL,
-      ULTRAVOX_VOICE,
-      ULTRAVOX_TEMPERATURE,
-    } = process.env
+  const {
+    TWILIO_ACCOUNT_SID,
+    TWILIO_AUTH_TOKEN,
+    TWILIO_PHONE_NUMBER,
+    ULTRAVOX_MODEL,
+    ULTRAVOX_VOICE,
+    ULTRAVOX_TEMPERATURE,
+  } = process.env
 
-    const callConfig = {
-      //systemPrompt: prompt.default,
-      systemPrompt: prompt,
-      model: model || ULTRAVOX_MODEL,
-      voice: voice || ULTRAVOX_VOICE,
-      temperature: temperature || ULTRAVOX_TEMPERATURE,
-      // firstSpeakerSettings: { user: {} }, // For outgoing calls, the user will answer the call (i.e. speak first)
-      firstSpeakerSettings: { agent: {} },
-      medium: { twilio: {} },
-    }
-    const ultravoxResponse = await createUltravoxCall(callConfig)
+  if (!phone || !listId) throw new Error('Missing required parameters')
 
-    if (!ultravoxResponse.joinUrl) {
-      throw new Error('No joinUrl received from Ultravox API')
-    }
+  // 1️⃣ Create Ultravox call
+  const callConfig = {
+    systemPrompt: prompt,
+    model: model || ULTRAVOX_MODEL,
+    voice: voice || ULTRAVOX_VOICE,
+    temperature: temperature || ULTRAVOX_TEMPERATURE,
+    // firstSpeakerSettings: { user: {} }, // For outgoing calls, the user will answer the call (i.e. speak first)
+    firstSpeakerSettings: { agent: {} },
+    medium: { twilio: {} },
+  }
+  const ultravoxResponse = await createUltravoxCall(callConfig)
+  console.log('ultravoxResponse: ', ultravoxResponse)
 
-    if (
-      !TWILIO_ACCOUNT_SID ||
-      !TWILIO_AUTH_TOKEN ||
-      !DESTINATION_PHONE_NUMBER ||
-      !TWILIO_PHONE_NUMBER
-    ) {
-      throw new Error('Missing required environment variables for Twilio')
-    }
+  const ultravoxCallId = ultravoxResponse?.callId
+  const ultravoxCreated = ultravoxResponse?.created
 
-    const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+  if (!ultravoxResponse.joinUrl) {
+    throw new Error('No joinUrl received from Ultravox API')
+  }
 
-    const call = await client.calls.create({
-      twiml: `<Response><Connect><Stream url="${ultravoxResponse.joinUrl}"/></Connect></Response>`,
-      to: phone,
-      from: TWILIO_PHONE_NUMBER,
-    })
+  // 2️⃣ Initiate Twilio call
+  const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
-    console.log('🎉 Twilio outbound phone call initiated successfully!')
-    console.log(`📋 Twilio Call SID: ${call.sid}`)
-    console.log(`📞 Calling ${phone} from ${TWILIO_PHONE_NUMBER}`)
+  const call = await client.calls.create({
+    twiml: `<Response><Connect><Stream url="${ultravoxResponse.joinUrl}"/></Connect></Response>`,
+    to: phone,
+    from: TWILIO_PHONE_NUMBER,
+  })
 
-    res.status(200).json({
-      status: 'success',
-      msg: '🎉 Twilio outbound phone call initiated successfully!',
-      sid: call.sid,
-      from: TWILIO_PHONE_NUMBER,
-      to: phone,
-    })
-  } catch (error) {
-    if (error instanceof Error) {
-      console.error('Ultravox call error:', error.message)
-      res.status(500).json({
-        error: 'Failed to create Ultravox call',
-        message: error.message,
-      })
-      console.error('💥 Error occurred:')
+  console.log('🎉 Twilio outbound phone call initiated successfully!')
+  console.log(`📋 Twilio Call SID: ${call.sid}`)
+  console.log(`📞 Calling ${phone} from ${TWILIO_PHONE_NUMBER}`)
 
-      if (error.message.includes('Authentication')) {
-        console.error(
-          '   🔐 Authentication failed - check your Twilio credentials'
-        )
-      } else if (error.message.includes('phone number')) {
-        console.error(
-          '   📞 Phone number issue - verify your phone numbers are correct'
-        )
-      } else if (error.message.includes('Ultravox')) {
-        console.error(
-          '   🤖 Ultravox API issue - check your API key and try again'
-        )
-      } else {
-        console.error(`   ${error.message}`)
-      }
+  // Insert ultravox call id
+  const listAttempt = await updateListAttemptStatusById(
+    listId,
+    'calling',
+    ultravoxCallId,
+    next
+  )
 
-      console.error('\n🔍 Troubleshooting tips:')
-      console.error('   • Double-check all configuration values')
-      console.error(
-        '   • Ensure phone numbers are in E.164 format (+1234567890)'
-      )
-      console.error('   • Verify your Twilio account has sufficient balance')
-      console.error('   • Check that your Ultravox API key is valid')
-    } else {
-      console.error('Ultravox call error:', error)
-      res.status(500).json({
-        error: 'Failed to create Ultravox call',
-        message: 'An unknown error occurred',
-      })
-    }
+  return {
+    status: 'success',
+    msg: '🎉 Twilio outbound phone call initiated successfully!',
+    sid: call.sid,
+    from: TWILIO_PHONE_NUMBER,
+    to: phone,
+    listAttempt,
   }
 }
 
