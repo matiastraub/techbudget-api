@@ -29,30 +29,6 @@ exports.getLists = asyncHandler(async (req, res, next) => {
   }
 })
 
-// @desc    Get all list attempts
-// @route   GET /api/lists/attempts
-// @access  Private
-exports.getListAttempts = asyncHandler(async (req, res, next) => {
-  try {
-    const [rows] = await pool.query(`
-      SELECT ca.id, c.phone,  m.name AS municipality,ch.name AS channel,ca.status, ca.attempt_time AS created
-      FROM list_attempts ca
-      INNER JOIN lists c ON ca.list_id = c.id
-      INNER JOIN municipalities m ON c.municipality_id = m.id
-      INNER JOIN channels ch ON ca.channel_id = ch.id
-    `)
-
-    res.status(200).json({
-      success: true,
-      count: rows.length,
-      data: rows,
-    })
-  } catch (err) {
-    console.error('DB Error:', err)
-    return next(new ErrorResponse('Error fetching lists', 500))
-  }
-})
-
 // @desc    Get single contact
 // @route   GET /api/lists/:id
 // @access  Private
