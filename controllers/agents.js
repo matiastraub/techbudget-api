@@ -92,15 +92,16 @@ exports.getCall = asyncHandler(async (req, res) => {
 exports.createCall = asyncHandler(async (req, res) => {
   try {
     const result = await generateOutgoingCall(req)
-    return res.status(200).json(result)
+    return res.status(201).json({ success: true, data: result })
   } catch (error) {
-    next(error)
+    //next(error)
+    res.status(401).json({ success: false, msg: error })
   }
 })
 
 async function generateOutgoingCall(req) {
   const { promptName } = req.params
-
+  console.log('promptName: ', promptName)
   const mdPath = path.resolve(`./prompts/${promptName}.md`)
 
   const fileContent = await fs.readFile(mdPath, 'utf-8')
@@ -109,6 +110,7 @@ async function generateOutgoingCall(req) {
   const prompt = parsed.content // Markdown body
 
   const { model, voice, temperature, phone, listAttemptId } = req.body
+  console.log('req.body', req.body)
   const {
     TWILIO_ACCOUNT_SID,
     TWILIO_AUTH_TOKEN,
