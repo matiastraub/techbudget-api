@@ -5,9 +5,6 @@ const path = require('path')
 const twilio = require('twilio')
 const fs = require('fs/promises')
 const { generateFakeCall, fixData } = require('../utils/encuestas')
-const {
-  updateListAttemptStatusById,
-} = require('../controllers/encuestas/listAttempts')
 
 const START_FAKE_CALLS = false
 let fakeCalls = []
@@ -156,21 +153,15 @@ async function generateOutgoingCall(req) {
   console.log(`📋 Twilio Call SID: ${call.sid}`)
   console.log(`📞 Calling ${phone} from ${TWILIO_PHONE_NUMBER}`)
 
-  // Insert ultravox call id
-  const listAttempt = await updateListAttemptStatusById(
-    listAttemptId,
-    'calling',
-    ultravoxCallId,
-    next
-  )
-
   return {
     status: 'success',
     msg: '🎉 Twilio outbound phone call initiated successfully!',
     sid: call.sid,
     from: TWILIO_PHONE_NUMBER,
     to: phone,
-    listAttempt,
+    listAttemptId,
+    ultravoxCallId,
+    ultravoxCreated,
   }
 }
 
