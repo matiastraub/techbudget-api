@@ -63,6 +63,7 @@ exports.getCall = asyncHandler(async (req, res) => {
   const total = resp.data.total
   const data = resp.data.results.map(
     ({
+      callId,
       created,
       ended,
       endReason,
@@ -73,6 +74,7 @@ exports.getCall = asyncHandler(async (req, res) => {
       shortSummary,
       summary,
     }) => ({
+      callId,
       created,
       ended,
       endReason,
@@ -109,8 +111,7 @@ async function generateOutgoingCall(req) {
 
   const prompt = parsed.content // Markdown body
 
-  const { model, voice, temperature, phone, listId } = req.body
-
+  const { model, voice, temperature, phone, listAttemptId } = req.body
   const {
     TWILIO_ACCOUNT_SID,
     TWILIO_AUTH_TOKEN,
@@ -120,7 +121,7 @@ async function generateOutgoingCall(req) {
     ULTRAVOX_TEMPERATURE,
   } = process.env
 
-  if (!phone || !listId) throw new Error('Missing required parameters')
+  if (!phone || !listAttemptId) throw new Error('Missing required parameters')
 
   // 1️⃣ Create Ultravox call
   const callConfig = {
@@ -157,7 +158,7 @@ async function generateOutgoingCall(req) {
 
   // Insert ultravox call id
   const listAttempt = await updateListAttemptStatusById(
-    listId,
+    listAttemptId,
     'calling',
     ultravoxCallId,
     next

@@ -4,14 +4,24 @@ const router = express.Router()
 const { protect, apiAuth } = require('../../middleware/auth')
 
 const listsController = require('../../controllers/encuestas/listAttempts')
-// Get all list attempts
-router.get('/', protect, listsController.getListAttempts)
 
 // Get all list attempts api
-router.get('/api', apiAuth, listsController.getListAttempts)
+router.get('/n8n', apiAuth, listsController.getListAttempts)
+
+//Get list attemps by Id
+router.get('/n8n/:id', apiAuth, listsController.getListAtttempt)
+
+//Get List Attempt by ultravox_call_id
+router.get(
+  '/n8n/ultravox/:ultravox',
+  apiAuth,
+  listsController.getListAtttemptByUltravox
+)
+
+router.post('/n8n/process-list', apiAuth, listsController.processList)
 
 // Update status
-router.patch('/api', apiAuth, listsController.updateListAttemptStatus)
+router.patch('/n8n', apiAuth, listsController.updateListAttemptStatus)
 
 router.post('/ultravox-calls', async (req, res, next) => {
   try {
@@ -42,5 +52,8 @@ router.post('/ultravox-calls', async (req, res, next) => {
     next(err)
   }
 })
+
+// Get all list attempts
+router.get('/', protect, listsController.getListAttempts)
 
 module.exports = router
