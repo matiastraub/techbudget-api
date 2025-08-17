@@ -20,38 +20,19 @@ router.get(
 
 router.post('/n8n/process-list', apiAuth, listsController.processList)
 
-// Update status
-router.patch('/n8n', apiAuth, listsController.updateListAttemptStatus)
+//Update status by Id
+router.patch('/n8n/:id', apiAuth, listsController.updateListAttemptsStatusById)
 
-router.post('/ultravox-calls', async (req, res, next) => {
-  try {
-    const { event, call } = req.body
+router.patch(
+  '/n8n/ultravox/:ultravoxCallId',
+  apiAuth,
+  listsController.updateListAttemptsStatusByUltravoxCallId
+)
 
-    if (!call?.callId) return res.status(400).json({ error: 'Missing callId' })
-
-    let status = null
-
-    switch (event) {
-      case 'call.started':
-        status = 'calling'
-        break
-      case 'call.joined':
-        status = 'answered'
-        break
-      case 'call.ended':
-        status = call.status || 'failed' // success, failed, no_answer, etc.
-        break
-      default:
-        return res.status(200).json({ message: 'Event ignored' })
-    }
-
-    await listsController.updateListAttemptStatusByUltravox(call.callId, status)
-
-    res.status(200).json({ success: true })
-  } catch (err) {
-    next(err)
-  }
-})
+router.post(
+  '/n8n/ultravox-events',
+  listsController.callStatusByUltravoxWebhookEvents
+)
 
 // Get all list attempts
 router.get('/', protect, listsController.getListAttempts)
