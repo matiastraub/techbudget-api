@@ -149,6 +149,7 @@ async function generateOutgoingCall(req) {
     twiml: `<Response><Connect><Stream url="${ultravoxResponse.joinUrl}"/></Connect></Response>`,
     to: phone,
     from: TWILIO_PHONE_NUMBER,
+    timeLimit: 60,
   })
 
   console.log('🎉 Twilio outbound phone call initiated successfully!')
