@@ -3,8 +3,6 @@ const asyncHandler = require('../../middleware/async')
 const pool = require('../../config/mysql')
 const { getCallRequest } = require('../agents')
 
-const DEFAULT_CAMPAIGN_ID = 1
-
 exports.getUltravoxSessions = asyncHandler(async (req, res, next) => {
   try {
     const sql = `SELECT * FROM ultravox_sessions`
@@ -32,7 +30,7 @@ exports.updateUltravoxSessions = async (req, res, next) => {
     if (data.length > 0) {
       const values = data.map((item) => [
         item.billedDuration || null,
-        DEFAULT_CAMPAIGN_ID, // campaign_id fixed to 1
+        process.env.DEFAULT_CAMPAIGN_ID, // campaign_id fixed to 1
         item.created || null,
         item.endReason || null,
         item.ended || null,
