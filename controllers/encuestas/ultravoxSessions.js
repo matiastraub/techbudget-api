@@ -19,7 +19,7 @@ exports.getUltravoxSessions = asyncHandler(async (req, res, next) => {
   }
 })
 
-exports.updateUltravoxSessions = async (req, res, next) => {
+exports.createUltravoxSessions = async (req, res, next) => {
   try {
     const calls = await getCallRequest()
     const { data } = calls
