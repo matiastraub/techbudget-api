@@ -3,9 +3,6 @@ const ErrorResponse = require('../../utils/ErrorResponse')
 const asyncHandler = require('../../middleware/async')
 const pool = require('../../config/mysql')
 
-const DEFAULT_CAMPAIGN_ID = 1
-const DEFAULT_CHANNEL = 1
-
 // @desc    Get list attempt by Id
 // @route   GET /api/encuestas/list-attempts/:id
 // @access  Private
@@ -179,8 +176,8 @@ exports.callStatusByUltravoxWebhookEvents = async (req, res, next) => {
 // @route   POST /api/lists/process
 // @access  Private
 exports.processList = asyncHandler(async (req, res, next) => {
-  campaign_id = DEFAULT_CAMPAIGN_ID
-  channel_id = DEFAULT_CHANNEL
+  const campaign_id = process.env.DEFAULT_CAMPAIGN_ID
+  const channel_id = process.env.DEFAULT_CHANNEL
 
   const listIdsToInsertQuery = `SELECT id FROM lists WHERE id NOT IN (SELECT list_id FROM list_attempts);`
 

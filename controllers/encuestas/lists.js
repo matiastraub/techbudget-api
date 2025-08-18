@@ -2,10 +2,6 @@ const ErrorResponse = require('../../utils/ErrorResponse')
 const asyncHandler = require('../../middleware/async')
 const pool = require('../../config/mysql')
 
-//TODO: Temporary values while implementing campaign and other channels
-const DEFAULT_CAMPAIGN_ID = 1
-const DEFAULT_CHANNEL = 1 //Phone number
-
 // @desc    Get all lists
 // @route   GET /api/lists
 // @access  Private
@@ -91,7 +87,7 @@ exports.uploadListsFile = asyncHandler(async (req, res, next) => {
 
 const createListFromList = async (contact, res, next) => {
   //HARDCODED FOR NOW
-  const campaign_id = DEFAULT_CAMPAIGN_ID
+  const campaign_id = process.env.DEFAULT_CAMPAIGN_ID
 
   const { phone, municipality, address, other_info } = contact
   if (!phone || !municipality) {
@@ -268,8 +264,8 @@ exports.deleteList = asyncHandler(async (req, res, next) => {
 // @route   POST /api/lists/process
 // @access  Private
 exports.processList = asyncHandler(async (req, res, next) => {
-  campaign_id = DEFAULT_CAMPAIGN_ID
-  channel_id = DEFAULT_CHANNEL
+  campaign_id = process.env.DEFAULT_CAMPAIGN_ID
+  channel_id = process.env.DEFAULT_CHANNEL
 
   const listIdsToInsertQuery = `SELECT id FROM lists WHERE id NOT IN (SELECT list_id FROM list_attempts);`
 
