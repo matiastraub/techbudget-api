@@ -41,6 +41,31 @@ exports.getCallFixData = asyncHandler((req, res) => {
   })
 })
 
+exports.getCallRequest = async () => {
+  try {
+    const url = process.env.ULTRAVOX_API_URL
+    const apiKey = process.env.ULTRAVOX_X_API_KEY
+    const options = {
+      method: 'GET',
+      url,
+      params: {
+        limit: process.env.API_LIMIT,
+        timePeriod: process.env.API_TIME_PERIOD,
+      },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-API-KEY': apiKey,
+      },
+    }
+    const resp = await axios.request(options)
+    const data = resp.data.results
+    const total = resp.data.total
+    return { data, total }
+  } catch (error) {
+    return error
+  }
+}
+
 exports.getCall = asyncHandler(async (req, res) => {
   const url = process.env.ULTRAVOX_API_URL
   const apiKey = process.env.ULTRAVOX_X_API_KEY
