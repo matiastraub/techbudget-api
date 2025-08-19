@@ -5,6 +5,11 @@ const listAttemptsQueries = require('../../controllers/encuestas/listAttemptsQue
 const listAttemptsController = require('../../controllers/encuestas/listAttempts')
 
 router.get('/n8n/status', apiAuth, listAttemptsQueries.getListAttemptsStatus)
+router.get(
+  '/n8n/byStatus/:status',
+  apiAuth,
+  listAttemptsQueries.getListAttemptsByStatus
+)
 
 router.patch(
   '/n8n/update-lists',
