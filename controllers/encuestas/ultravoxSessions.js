@@ -3,6 +3,18 @@ const asyncHandler = require('../../middleware/async')
 const pool = require('../../config/mysql')
 const { getCallRequest } = require('../agents')
 
+exports.getUltravoxSessionsRequest = async () => {
+  try {
+    const sql = `SELECT * FROM ultravox_sessions`
+    const [rows] = await pool.query(sql)
+
+    return rows
+  } catch (err) {
+    console.error('DB Error:', err)
+    return err.message
+  }
+}
+
 exports.getUltravoxSessions = asyncHandler(async (req, res, next) => {
   try {
     const sql = `SELECT * FROM ultravox_sessions`
