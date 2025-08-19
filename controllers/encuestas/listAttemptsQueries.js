@@ -3,10 +3,16 @@ const asyncHandler = require('../../middleware/async')
 const pool = require('../../config/mysql')
 
 exports.getListAttemptsStatus = asyncHandler(async (req, res, next) => {
-  const query = `SELECT l.phone,la.status, us.ultravox_call_id, us.end_reason, us.created, us.joined, us.ended
-FROM ultravox_sessions us
-RIGHT JOIN list_attempts la ON la.ultravox_call_id = us.ultravox_call_id
-RIGHT JOIN lists l ON  l.id = la.list_id;`
+  const query = `SELECT l.campaign_id,l.phone,m.name AS municipality,r.name AS region,r.code AS \`region_code\`,
+                d.id AS \`district\`,la.status,ca.name AS candidate,la.attempt_time,us.short_summary,
+                us.end_reason, us.ultravox_call_id,us.created,us.joined, us.ended
+                FROM encuestas.list_attempts la
+                INNER JOIN lists l ON l.id = list_id
+                INNER JOIN municipalities m ON m.id = l.municipality_id
+                INNER JOIN districts d ON d.id = m.district_id
+                INNER JOIN regions r ON r.id = m.region_id
+                LEFT JOIN candidates ca ON ca.id = l.candidate_id
+                LEFT JOIN ultravox_sessions us ON us.ultravox_call_id = la.ultravox_call_id;`
   const [rows] = await pool.query(query)
   if (rows.length === 0) {
     return next(new ErrorResponse('List attempt not found', 404))
