@@ -9,4 +9,10 @@ router.post('/n8n', apiAuth, ultravoxSessions.createUltravoxSessions)
 
 router.get('/', protect, ultravoxSessions.getUltravoxSessions)
 
+router.patch(
+  '/n8n/update-candidates',
+  apiAuth,
+  ultravoxSessions.updateUltravoxSessionsWithCandidates
+)
+
 module.exports = router

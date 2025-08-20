@@ -2,8 +2,10 @@ const ErrorResponse = require('../../utils/ErrorResponse')
 const asyncHandler = require('../../middleware/async')
 const pool = require('../../config/mysql')
 const { getCallRequest } = require('../agents')
+const { extractCandidate } = require('../../utils/encuestas/candidates')
+const { candidatesRequest } = require('../encuestas/candidates')
 
-exports.getUltravoxSessionsRequest = async () => {
+const getUltravoxSessionsRequest = async () => {
   try {
     const sql = `SELECT * FROM ultravox_sessions`
     const [rows] = await pool.query(sql)
@@ -30,6 +32,27 @@ exports.getUltravoxSessions = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse('Error fetching lists', 500))
   }
 })
+
+exports.updateUltravoxSessionsWithCandidates = async (req, res, next) => {
+  try {
+    const request = await getUltravoxSessionsRequest()
+    const candidates = await candidatesRequest()
+    let sqlUpdate = `UPDATE ultravox_sessions SET candidate_id = ? WHERE id = ?`
+    const updatedIds = []
+    request.forEach(async (u) => {
+      u.candidate = extractCandidate(u.short_summary)
+      u.candidate_id =
+        candidates?.find((c) => c?.short_name === u?.candidate)?.id || null
+      if (u?.candidate_id) {
+        const [resp] = await pool.query(sqlUpdate, [u.candidate_id, u.id])
+        updatedIds.push(resp)
+      }
+    })
+    res.status(200).json({ success: true, msg: 'updated successfuly' })
+  } catch (error) {
+    res.status(401).json({ success: false, msg: error.message })
+  }
+}
 
 exports.createUltravoxSessions = async (req, res, next) => {
   try {
