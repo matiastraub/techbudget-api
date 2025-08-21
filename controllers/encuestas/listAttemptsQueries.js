@@ -4,7 +4,7 @@ const pool = require('../../config/mysql')
 
 exports.getListAttemptsStatus = asyncHandler(async (req, res, next) => {
   const query = `SELECT l.campaign_id,l.phone,m.name AS municipality,r.name AS region,r.code AS \`region_code\`,
-                d.id AS \`district\`,la.status,ca.name AS candidate,la.attempt_time,us.short_summary,
+                d.id AS \`district\`,la.status,ca.name AS candidate,us.short_summary,
                 us.end_reason, us.ultravox_call_id,us.created,us.joined, us.ended
                 FROM encuestas.list_attempts la
                 INNER JOIN lists l ON l.id = list_id
