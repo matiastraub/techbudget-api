@@ -8,7 +8,7 @@ const url = getUrl()
 
 const headOptions = {
   'Content-Type': 'text/event-stream; charset="utf-8"',
-  'Access-Control-Allow-Origin': url,
+  'Access-Control-Allow-Origin': '*',
   'Cache-Control': 'no-cache',
   Connection: 'keep-alive',
 }
