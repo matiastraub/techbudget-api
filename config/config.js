@@ -20,5 +20,14 @@ module.exports = {
     development: `http://localhost:5173`,
     production: `https://www.techbudget.io`,
   },
+  allowedOrigins: [
+    `http://localhost:5173`,
+    `http://localhost:5174`,
+    `http://localhost`,
+    `https://localhost`,
+    `https://techbudget.io`,
+    `https://www.techbudget.io`,
+    `https://encuestas.halo.cl`,
+  ],
   emailSender: 'gogogol',
 }

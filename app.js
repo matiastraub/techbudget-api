@@ -58,15 +58,7 @@ app.use(
   cors({
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization'],
-    origin: [
-      `http://localhost:${config.port}`,
-      `http://localhost:${config.portTech}`,
-      `http://localhost`,
-      `https://localhost`,
-      `https://techbudget.io`,
-      `https://www.techbudget.io`,
-      `https://encuestas.halo.cl`,
-    ],
+    origin: config.allowedOrigins,
   })
 )
 
