@@ -3,6 +3,7 @@ const nodemailer = require('nodemailer')
 const config = require('../config/config')
 const fs = require('fs')
 const axios = require('axios')
+const { getUrl } = require('../utils/utility')
 
 const { host, port, auth } = emailAuth
 const transporter = nodemailer.createTransport({
@@ -177,12 +178,6 @@ const sendEmailTransportMessage = async (
     await user.save({ validateBeforeSave: false })
     next(new ErrorResponse('Email could not be sent', 500))
   }
-}
-
-const getUrl = () => {
-  const isProd = process.env.NODE_ENV === 'production'
-  if (isProd) return config.domain.production
-  return config.domain.development
 }
 
 const objectToQueryString = (obj) => {
