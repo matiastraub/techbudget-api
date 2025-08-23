@@ -4,8 +4,12 @@ const { protect, apiAuth } = require('../../middleware/auth')
 const listAttemptsQueries = require('../../controllers/encuestas/listAttemptsQueries')
 const listAttemptsController = require('../../controllers/encuestas/listAttempts')
 
-router.get('/status', protect, listAttemptsQueries.getListAttemptsStatus)
-router.get('/n8n/status', apiAuth, listAttemptsQueries.getListAttemptsStatus)
+router.get('/channel/phone', protect, listAttemptsQueries.getListsChannelPhone)
+router.get(
+  '/n8n/channel/phone',
+  apiAuth,
+  listAttemptsQueries.getListsChannelPhone
+)
 router.get(
   '/n8n/byStatus/:status',
   apiAuth,
