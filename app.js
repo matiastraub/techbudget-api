@@ -36,6 +36,8 @@ const cryptoRouter = require('./routes/crypto')
 const geolocationRouter = require('./routes/geolocation')
 const sseRouter = require('./routes/sse')
 const agentsRouter = require('./routes/agents')
+const twilioRouter = require('./routes/twilio')
+const whatsAppRouter = require('./routes/whatsApp')
 
 // Body parser
 app.use(express.json())
@@ -112,6 +114,10 @@ app.use(`${config.apiUrl}/crypto`, cryptoRouter)
 app.use(`${config.apiUrl}/geolocation`, geolocationRouter)
 app.use(`${config.apiUrl}/events`, sseRouter)
 app.use(`${config.apiUrl}/agents`, agentsRouter)
+
+app.use(`${config.apiUrl}/twilio`, twilioRouter)
+
+app.use(`${config.apiUrl}/whatsapp`, whatsAppRouter)
 
 const uploadPath = path.join(__dirname, 'public/uploads')
 
