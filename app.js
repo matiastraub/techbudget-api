@@ -38,6 +38,7 @@ const sseRouter = require('./routes/sse')
 const agentsRouter = require('./routes/agents')
 const twilioRouter = require('./routes/twilio')
 const whatsAppRouter = require('./routes/whatsApp')
+const vehiclesRouter = require('./routes/vehiculos')
 
 // Body parser
 app.use(express.json())
@@ -118,6 +119,7 @@ app.use(`${config.apiUrl}/agents`, agentsRouter)
 app.use(`${config.apiUrl}/twilio`, twilioRouter)
 
 app.use(`${config.apiUrl}/whatsapp`, whatsAppRouter)
+app.use(`${config.apiUrl}/vehiculos`, vehiclesRouter)
 
 const uploadPath = path.join(__dirname, 'public/uploads')
 
