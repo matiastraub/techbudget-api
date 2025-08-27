@@ -3,7 +3,7 @@ const router = express.Router()
 const { protect, apiAuthChileAutos } = require('../middleware/auth')
 const { webhook, test } = require('../controllers/vehiculos.js')
 
-router.route('/chileautos/jmd').post(apiAuthChileAutos, test)
+router.route('/chileautos/jmd').get(apiAuthChileAutos, test)
 
 router.route('/chileautos/jmd').post(apiAuthChileAutos, webhook)
 
