@@ -124,6 +124,12 @@ const UserSchema = new mongoose.Schema({
       },
     ],
   },
+  custom: {
+    type: Object,
+    properties: {
+      type: Object,
+    },
+  },
   sources: [
     {
       type: String,
