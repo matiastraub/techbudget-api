@@ -251,9 +251,7 @@ exports.processList = asyncHandler(async (req, res, next) => {
   const listIdsToInsertQuery = `SELECT id FROM lists WHERE id NOT IN (SELECT list_id FROM list_attempts);`
 
   const [resultIds] = await pool.query(listIdsToInsertQuery, [campaign_id])
-  console.log('resultIds', resultIds)
   const ids = resultIds.map((i) => i.id)
-  console.log('ids', ids.length)
   if (ids.length > 0) {
     const values = ids.map((id) => [
       id,
