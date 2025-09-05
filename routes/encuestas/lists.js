@@ -10,6 +10,9 @@ const { protect } = require('../../middleware/auth')
 // Get all list
 router.get('/', protect, listsController.getLists)
 
+// Get lists by campaign
+router.get('/campaigns/:id', protect, listsController.getListsByCampaignId)
+
 // Get single list item by ID
 router.get('/:id', protect, listsController.getList)
 
