@@ -3,6 +3,7 @@ const ErrorResponse = require('../../utils/ErrorResponse')
 const asyncHandler = require('../../middleware/async')
 const pool = require('../../config/mysql')
 const { getUltravoxSessionsRequest } = require('./ultravoxSessions')
+//const { emitStatusChange } = require('../../controllers/encuestas/sse')
 
 // @desc    Get list attempt by Id
 // @route   GET /api/encuestas/list-attempts/:id
@@ -87,6 +88,8 @@ exports.getListAttempts = asyncHandler(async (req, res, next) => {
 // @route   GET /api/lists/attempts
 // @access  Private
 exports.updateListAttemptsStatusById = async (req, res, next) => {
+  //First time status is calling from N8N
+
   try {
     const { id } = req.params
     const { status, ultravoxCallId } = req.body
@@ -113,6 +116,7 @@ exports.updateListAttemptsStatusById = async (req, res, next) => {
       'SELECT * FROM list_attempts WHERE id = ?',
       [id]
     )
+    //emitStatusChange(ultravoxCallId, 'calling', campaignId)
     res.status(200).json({ success: true, data: rows[0] })
   } catch (error) {
     console.error('DB Error:', err)
@@ -197,6 +201,14 @@ exports.updateListAttemptsStatusByUltravoxCallId = async (req, res, next) => {
       [status, attemptTime, ultravoxCallId]
     )
 
+    // 🚀 EMIT STATUS CHANGE EVENT
+    // const { emitStatusChange } = require('./callController')
+    // emitStatusChange(list_attempt_id, status, campaign_id, {
+    //   ultravox_call_id,
+    //   call_duration,
+    //   updated_at: new Date().toISOString()
+    // })
+
     const [updated] = await pool.query(
       'SELECT * FROM list_attempts WHERE ultravox_call_id = ?',
       [ultravoxCallId]
@@ -251,9 +263,7 @@ exports.processList = asyncHandler(async (req, res, next) => {
   const listIdsToInsertQuery = `SELECT id FROM lists WHERE id NOT IN (SELECT list_id FROM list_attempts);`
 
   const [resultIds] = await pool.query(listIdsToInsertQuery, [campaign_id])
-  console.log('resultIds', resultIds)
   const ids = resultIds.map((i) => i.id)
-  console.log('ids', ids.length)
   if (ids.length > 0) {
     const values = ids.map((id) => [
       id,

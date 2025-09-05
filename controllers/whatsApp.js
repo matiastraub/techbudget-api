@@ -7,7 +7,7 @@ const fs = require('fs/promises')
 
 const VERIFY_TOKEN = 'HaloIA123012mmqasf012m43fmvvakj1~i1'
 
-exports.sendVerification = asyncHandler((req, res) => {
+exports.sendVerification = (req, res) => {
   // WhatsApp envía esta request al verificar el webhook
   const mode = req.query['hub.mode']
   const token = req.query['hub.verify_token']
@@ -18,7 +18,7 @@ exports.sendVerification = asyncHandler((req, res) => {
   } else {
     res.sendStatus(403)
   }
-})
+}
 
 exports.sendVerificationPost = asyncHandler((req, res) => {
   // WhatsApp envía esta request al verificar el webhook

@@ -134,8 +134,8 @@ async function generateOutgoingCall(req) {
 
   const prompt = parsed.content // Markdown body
 
-  const { model, voice, temperature, phone, listAttemptId } = req.body
-  console.log('req.body', req.body)
+  const { model, voice, temperature, phone, listAttemptId, timeLimit } =
+    req.body
   const {
     TWILIO_ACCOUNT_SID,
     TWILIO_AUTH_TOKEN,
@@ -158,7 +158,6 @@ async function generateOutgoingCall(req) {
     medium: { twilio: {} },
   }
   const ultravoxResponse = await createUltravoxCall(callConfig)
-  console.log('ultravoxResponse: ', ultravoxResponse)
 
   const ultravoxCallId = ultravoxResponse?.callId
   const ultravoxCreated = ultravoxResponse?.created
@@ -174,12 +173,21 @@ async function generateOutgoingCall(req) {
     twiml: `<Response><Connect><Stream url="${ultravoxResponse.joinUrl}"/></Connect></Response>`,
     to: phone,
     from: TWILIO_PHONE_NUMBER,
-    timeLimit: 60,
+    timeLimit: timeLimit || 120,
   })
 
   console.log('🎉 Twilio outbound phone call initiated successfully!')
   console.log(`📋 Twilio Call SID: ${call.sid}`)
   console.log(`📞 Calling ${phone} from ${TWILIO_PHONE_NUMBER}`)
+
+  // When Ultravox webhook updates a call
+  //emitStatusChange(call.sid, 'answered', campaignId)
+
+  // When a new call is created
+  //emitNewCall(newCallData, campaignId)
+
+  // When any call data is updated
+  //  emitCallUpdate(updatedCallData, campaignId)
 
   return {
     status: 'success',
