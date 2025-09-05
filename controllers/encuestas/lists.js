@@ -1,6 +1,30 @@
 const ErrorResponse = require('../../utils/ErrorResponse')
 const asyncHandler = require('../../middleware/async')
 const pool = require('../../config/mysql')
+const { extractCandidate } = require('../../utils/encuestas/candidates')
+
+// @desc    Get all lists by campaign Id
+// @route   GET /api/lists/campaign/:id
+// @access  Private
+exports.getListsByCampaignId = asyncHandler(async (req, res, next) => {
+  const { id } = req.params
+  const [rows] = await pool.query(
+    `
+      SELECT c.id, c.phone, c.address, c.other_info, 
+             m.id AS municipality_id, m.name AS municipality_name
+      FROM lists c
+      JOIN municipalities m ON c.municipality_id = m.id
+      WHERE c.campaign_id = ?
+    `,
+    [id]
+  )
+
+  res.status(200).json({
+    success: true,
+    count: rows.length,
+    data: rows,
+  })
+})
 
 // @desc    Get all lists
 // @route   GET /api/lists
@@ -116,17 +140,14 @@ const createListFromList = async (contact, res, next) => {
       [phone, municipality_id, campaign_id, address || null, other_info || null]
     )
 
-    res.status(201).json({
-      success: true,
-      data: {
-        id: result.insertId,
-        phone,
-        municipality_id,
-        campaign_id,
-        address,
-        other_info,
-      },
-    })
+    return {
+      id: result.insertId,
+      phone,
+      municipality_id,
+      campaign_id,
+      address,
+      other_info,
+    }
   } catch (err) {
     console.error('DB Error:', err)
     return next(new ErrorResponse('Error creating contact', 500))
@@ -233,6 +254,54 @@ exports.updateList = asyncHandler(async (req, res, next) => {
   } catch (err) {
     console.error('DB Error:', err)
     return next(new ErrorResponse('Error updating contact', 500))
+  }
+})
+
+const getListsAttemptsRequest = async () => {
+  try {
+    const sql = `SELECT l.id, l.phone,l.candidate_id, us.ultravox_call_id,us.short_summary,us.summary
+                  FROM lists l 
+                  INNER JOIN list_attempts la ON l.id = la.list_id 
+                  INNER JOIN encuestas.ultravox_sessions us  ON la.ultravox_call_id = us.ultravox_call_id
+                  WHERE us.end_reason = 'hangup';`
+    const [rows] = await pool.query(sql)
+    return rows
+  } catch (error) {
+    console.error('Error ', error.message)
+    return []
+  }
+}
+
+exports.updateCandidate = asyncHandler(async (req, res, next) => {
+  const { candidate_id } = req.body
+
+  if (!candidate_id) {
+    return next(new ErrorResponse('candidate_id is required', 400))
+  }
+
+  try {
+    const [result] = await pool.query(
+      `
+      UPDATE lists 
+      SET candidate_id = ? 
+      WHERE id = ?
+    `,
+      [candidate_id, req.params.id]
+    )
+
+    if (result.affectedRows === 0) {
+      return next(
+        new ErrorResponse(`List not found with id ${req.params.id}`, 404)
+      )
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Candidate for List ${req.params.id} updated successfully`,
+    })
+  } catch (err) {
+    console.error('DB Error:', err)
+    return next(new ErrorResponse('Error updating candidate', 500))
   }
 })
 
