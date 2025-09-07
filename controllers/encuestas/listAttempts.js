@@ -4,6 +4,10 @@ const asyncHandler = require('../../middleware/async')
 const pool = require('../../config/mysql')
 const { getUltravoxSessionsRequest } = require('./ultravoxSessions')
 //const { emitStatusChange } = require('../../controllers/encuestas/sse')
+const { emitCallUpdate } = require('../../controllers/encuestas/sse')
+const {
+  getListsChannelPhoneByCampaignAndIdRequest,
+} = require('./listAttemptsQueries')
 
 // @desc    Get list attempt by Id
 // @route   GET /api/encuestas/list-attempts/:id
@@ -111,15 +115,24 @@ exports.updateListAttemptsStatusById = async (req, res, next) => {
         new ErrorResponse(`Municipality not found with id ${id}`, 404)
       )
     }
+
+    const querySelect = `SELECT la.id,l.campaign_id, la.list_id,la.channel_id, la.attempt_time, la.status,
+                          la.notes, la.ultravox_call_id FROM list_attempts la 
+                          INNER JOIN lists l ON l.id = la.list_id
+                          WHERE la.id = ?`
     await pool.query(query, params)
-    const [rows] = await pool.query(
-      'SELECT * FROM list_attempts WHERE id = ?',
-      [id]
+    const [rows] = await pool.query(querySelect, [id])
+
+    const campaignId = rows.campaign_id
+    const callData = await getListsChannelPhoneByCampaignAndIdRequest(
+      campaignId,
+      id
     )
-    //emitStatusChange(ultravoxCallId, 'calling', campaignId)
+
+    emitCallUpdate(callData, campaignId)
     res.status(200).json({ success: true, data: rows[0] })
   } catch (error) {
-    console.error('DB Error:', err)
+    console.error('DB Error:', error.message)
     //return next(new ErrorResponse('Error updating', 500))
     res.status(401).json({ success: false, msg: error.message })
   }
@@ -201,13 +214,12 @@ exports.updateListAttemptsStatusByUltravoxCallId = async (req, res, next) => {
       [status, attemptTime, ultravoxCallId]
     )
 
-    // 🚀 EMIT STATUS CHANGE EVENT
-    // const { emitStatusChange } = require('./callController')
-    // emitStatusChange(list_attempt_id, status, campaign_id, {
-    //   ultravox_call_id,
-    //   call_duration,
-    //   updated_at: new Date().toISOString()
-    // })
+    const [callData] = await getListsChannelPhoneByCampaignAndIdRequest(
+      existing[0].campaign_id,
+      existing[0].id
+    )
+    console.log('callData to emit: ', callData)
+    emitCallUpdate(callData, existing[0].campaign_id)
 
     const [updated] = await pool.query(
       'SELECT * FROM list_attempts WHERE ultravox_call_id = ?',

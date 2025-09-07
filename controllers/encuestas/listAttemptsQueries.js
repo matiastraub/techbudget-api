@@ -27,9 +27,8 @@ exports.getListsChannelPhone = asyncHandler(async (req, res, next) => {
   })
 })
 
-exports.getListsChannelPhoneByCampaignRequest = async (campaignId) => {
-  try {
-    const query = `SELECT l.phone, la.id, la.list_id, la.status,la.ultravox_call_id,us.candidate_id,
+const generalQuery =
+  () => `SELECT l.phone, la.id, la.list_id, la.status,la.ultravox_call_id,us.candidate_id,
                 CONCAT(ca.name," ",ca.lastname) AS candidate,ca.name AS candidate_name,
                 ca.lastname AS candidate_lastname,
                 m.name AS municipality,r.name AS region,r.code AS \`region_code\`, d.id AS \`district\`,
@@ -40,8 +39,27 @@ exports.getListsChannelPhoneByCampaignRequest = async (campaignId) => {
                 INNER JOIN districts d ON d.id = m.district_id
                 INNER JOIN regions r ON r.id = m.region_id
                 LEFT JOIN ultravox_sessions us ON us.ultravox_call_id = la.ultravox_call_id
-                LEFT JOIN candidates ca ON ca.id = us.candidate_id
-                WHERE l.campaign_id = ?`
+                LEFT JOIN candidates ca ON ca.id = us.candidate_id`
+
+exports.getListsChannelPhoneByCampaignAndIdRequest = async (
+  campaignId,
+  listAttemptId
+) => {
+  try {
+    const query = `${generalQuery()} WHERE l.campaign_id = ? AND la.id = ?`
+    console.log('query', query)
+    console.log('params', [campaignId, listAttemptId])
+    const [rows] = await pool.query(query, [campaignId, listAttemptId])
+    return rows
+  } catch (error) {
+    console.error('DB Error:', error.message)
+    return []
+  }
+}
+
+exports.getListsChannelPhoneByCampaignRequest = async (campaignId) => {
+  try {
+    const query = `${generalQuery()} WHERE l.campaign_id = ?`
     const [rows] = await pool.query(query, [campaignId])
     return rows
   } catch (error) {
