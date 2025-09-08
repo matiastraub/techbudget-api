@@ -1,10 +1,23 @@
 const express = require('express')
 const router = express.Router()
+const rateLimit = require('express-rate-limit')
+
+// Special limiter for Ultravox webhooks
+const ultravoxLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 1000, // allow 1000 requests per minute (very high tolerance)
+  message: 'Too many requests to Ultravox webhook',
+})
+
 const { protect, apiAuth } = require('../middleware/auth')
 const { getCallUltravox, createCall } = require('../controllers/agents')
 
-router.route('/').get(protect, getCallUltravox)
+router.route('/').get(ultravoxLimiter, protect, getCallUltravox)
 
-router.route('/:promptName').post(createCall)
+router.route('/n8n').get(ultravoxLimiter, apiAuth, getCallUltravox)
+
+router.route('/n8n/:promptName').post(ultravoxLimiter, apiAuth, createCall)
+
+router.route('/:promptName').post(ultravoxLimiter, apiAuth, createCall)
 
 module.exports = router
