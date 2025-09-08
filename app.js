@@ -115,11 +115,10 @@ app.use(`${config.apiUrl}/crypto`, cryptoRouter)
 app.use(`${config.apiUrl}/geolocation`, geolocationRouter)
 app.use(`${config.apiUrl}/events`, sseRouter)
 app.use(`${config.apiUrl}/agents`, agentsRouter)
-
 app.use(`${config.apiUrl}/twilio`, twilioRouter)
 
-app.use(`${config.apiUrl}/whatsapp`, whatsAppRouter)
 app.use(`${config.apiUrl}/vehiculos`, vehiclesRouter)
+app.use(`${config.apiUrl}/whatsapp`, whatsAppRouter)
 
 const uploadPath = path.join(__dirname, 'public/uploads')
 
