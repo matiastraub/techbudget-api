@@ -28,9 +28,7 @@ exports.uploadEncuestaFile = asyncHandler(async (req, res, next) => {
     row.canal = row?.Canal || row?.canal || ''
     row.user = req.user.id
     transArray.push(row)
-    console.log('trans', row)
   })
   const listaCreated = await Lista.insertMany(transArray)
-  console.log('listaCreated', listaCreated)
   return res.status(201).json({ success: true, data: listaCreated })
 })
