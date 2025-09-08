@@ -25,7 +25,7 @@ exports.extractCandidate = (text, long = false) => {
   const candidatos = long ? candidatosLong : candidatosShort
 
   const match = text.match(
-    /\b(Johannes|Kaiser|H[ae]ra|J[ae]ra|Evelyn|Matthei|Kast|José Antonio|Franco|Parisi)\b/i
+    /\b(Johannes|Kaiser|H[ae]ra|J[ae]ra|Evelyn|Matthei|Mattei|Kast|José Antonio|Franco|Parisi)\b/i
   )
 
   if (!match) return null
