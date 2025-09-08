@@ -4,7 +4,6 @@ const router = express.Router()
 const {
   getListsChannelPhoneByCampaign,
   getCallUpdatesStream,
-  postTestSSE,
   broadcastToCampaignTest,
 } = require('../../controllers/encuestas/sse') // Adjust path as needed
 

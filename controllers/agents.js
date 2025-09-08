@@ -4,41 +4,49 @@ const matter = require('gray-matter')
 const path = require('path')
 const twilio = require('twilio')
 const fs = require('fs/promises')
-const { generateFakeCall, fixData } = require('../utils/encuestas')
+const pool = require('../config/mysql')
 
-const START_FAKE_CALLS = false
-let fakeCalls = []
+const { generateFakeCall } = require('../utils/encuestas')
 
-if (START_FAKE_CALLS) {
-  // Generate new call every 5 seconds
-  setInterval(() => {
-    fakeCalls.unshift(generateFakeCall())
-    if (fakeCalls.length > 10000) fakeCalls.pop()
-  }, 5000)
-}
-
-// @desc    Get call
-// @route   GET /api/v1/categories/:user
-// @access  Private
-exports.getCallFake = asyncHandler((req, res) => {
+exports.getUltravoxFakeCalls = asyncHandler(async (req, res, next) => {
+  const sql = `SELECT * FROM fake_ultravox`
+  const [rows] = await pool.query(sql)
   res.status(200).json({
     success: true,
-    data: { isMock: true, data: fakeCalls, total: fakeCalls.length },
+    data: { data: rows },
   })
 })
 
-exports.getCallFixData = asyncHandler((req, res) => {
-  const resp = {
-    success: true,
-    data: {
-      data: fixData,
-      total: 12,
-    },
-  }
-  res.status(200).json({
-    success: true,
-    data: { isMock: true, data: resp.data.data, total: resp.data.total },
-  })
+const createUltravoxFakeCall = asyncHandler(async (fakeCall) => {
+  const {
+    callId,
+    created,
+    joined,
+    ended,
+    joinTimeout,
+    maxDuration,
+    endReason,
+    errorCount,
+    shortSummary,
+    summary,
+  } = fakeCall
+
+  const sql = `INSERT INTO fake_ultravox 
+  (callId, created, joined, ended, joinTimeout, maxDuration, endReason, errorCount, shortSummary, summary)
+  VALUES (?,?,?,?,?,?,?,?,?,?)`
+
+  const [result] = await pool.query(sql, [
+    callId,
+    created,
+    joined,
+    ended,
+    joinTimeout,
+    maxDuration,
+    endReason,
+    errorCount,
+    shortSummary,
+    summary,
+  ])
 })
 
 exports.getCallRequest = async () => {
@@ -65,6 +73,15 @@ exports.getCallRequest = async () => {
     return error
   }
 }
+
+// @desc    Get call
+// @route   GET /api/v1/agents
+// @access  Private
+exports.getCallUltravox = asyncHandler(async (req, res) => {
+  const USE_FAKE_CALLS = process.env.USE_FAKE_CALLS === 'true'
+  if (USE_FAKE_CALLS) return await exports.getUltravoxFakeCalls(req, res)
+  return await exports.getCall(req, res)
+})
 
 exports.getCall = asyncHandler(async (req, res) => {
   const url = process.env.ULTRAVOX_API_URL
@@ -125,29 +142,69 @@ exports.createCall = asyncHandler(async (req, res) => {
 })
 
 async function generateOutgoingCall(req) {
+  const USE_FAKE_CALLS = process.env.USE_FAKE_CALLS === 'true'
   const { promptName } = req.params
-  console.log('promptName: ', promptName)
   const mdPath = path.resolve(`./prompts/${promptName}.md`)
-
   const fileContent = await fs.readFile(mdPath, 'utf-8')
   const parsed = matter(fileContent)
-
-  const prompt = parsed.content // Markdown body
-
+  const prompt = parsed.content
   const { model, voice, temperature, phone, listAttemptId, timeLimit } =
     req.body
-  const {
-    TWILIO_ACCOUNT_SID,
-    TWILIO_AUTH_TOKEN,
-    TWILIO_PHONE_NUMBER,
-    ULTRAVOX_MODEL,
-    ULTRAVOX_VOICE,
-    ULTRAVOX_TEMPERATURE,
-  } = process.env
-
   if (!phone || !listAttemptId) throw new Error('Missing required parameters')
 
-  // 1️⃣ Create Ultravox call
+  // 🟢 If testing mode, just return fake call data
+  if (USE_FAKE_CALLS) {
+    const fakeCall = generateFakeCall()
+    await createUltravoxFakeCall(fakeCall)
+    return {
+      status: 'fake',
+      msg: '🧪 Fake call generated (testing mode)',
+      //  ...fakeCall,
+      sid: 'FAKE_SID_' + Math.random().toString(36).substring(2, 15),
+      from: 'FAKE_NUMBER',
+      to: phone,
+
+      listAttemptId,
+      ultravoxCallId: fakeCall?.callId,
+      ultravoxCreated: fakeCall?.created,
+    }
+  }
+  const { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER } =
+    process.env
+
+  const ultravoxResponse = await createUltravoxCall(
+    model,
+    voice,
+    temperature,
+    prompt
+  )
+
+  if (!ultravoxResponse.joinUrl)
+    throw new Error('No joinUrl received from Ultravox API')
+
+  const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+  const call = await client.calls.create({
+    twiml: `<Response><Connect><Stream url="${ultravoxResponse.joinUrl}"/></Connect></Response>`,
+    to: phone,
+    from: TWILIO_PHONE_NUMBER,
+    timeLimit: timeLimit || 120,
+  })
+
+  return {
+    status: 'success',
+    msg: '🎉 Twilio outbound phone call initiated successfully!',
+    sid: call.sid,
+    from: TWILIO_PHONE_NUMBER,
+    to: phone,
+    listAttemptId,
+    ultravoxCallId: ultravoxResponse?.callId,
+    ultravoxCreated: ultravoxResponse?.created,
+  }
+}
+
+async function createUltravoxCall(model, voice, temperature, prompt) {
+  const { ULTRAVOX_MODEL, ULTRAVOX_VOICE, ULTRAVOX_TEMPERATURE } = process.env
+
   const callConfig = {
     systemPrompt: prompt,
     model: model || ULTRAVOX_MODEL,
@@ -157,51 +214,7 @@ async function generateOutgoingCall(req) {
     firstSpeakerSettings: { agent: {} },
     medium: { twilio: {} },
   }
-  const ultravoxResponse = await createUltravoxCall(callConfig)
 
-  const ultravoxCallId = ultravoxResponse?.callId
-  const ultravoxCreated = ultravoxResponse?.created
-
-  if (!ultravoxResponse.joinUrl) {
-    throw new Error('No joinUrl received from Ultravox API')
-  }
-
-  // 2️⃣ Initiate Twilio call
-  const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
-
-  const call = await client.calls.create({
-    twiml: `<Response><Connect><Stream url="${ultravoxResponse.joinUrl}"/></Connect></Response>`,
-    to: phone,
-    from: TWILIO_PHONE_NUMBER,
-    timeLimit: timeLimit || 120,
-  })
-
-  console.log('🎉 Twilio outbound phone call initiated successfully!')
-  console.log(`📋 Twilio Call SID: ${call.sid}`)
-  console.log(`📞 Calling ${phone} from ${TWILIO_PHONE_NUMBER}`)
-
-  // When Ultravox webhook updates a call
-  //emitStatusChange(call.sid, 'answered', campaignId)
-
-  // When a new call is created
-  //emitNewCall(newCallData, campaignId)
-
-  // When any call data is updated
-  //  emitCallUpdate(updatedCallData, campaignId)
-
-  return {
-    status: 'success',
-    msg: '🎉 Twilio outbound phone call initiated successfully!',
-    sid: call.sid,
-    from: TWILIO_PHONE_NUMBER,
-    to: phone,
-    listAttemptId,
-    ultravoxCallId,
-    ultravoxCreated,
-  }
-}
-
-async function createUltravoxCall(callConfig) {
   const ULTRAVOX_API_URL = process.env.ULTRAVOX_API_URL
   const ULTRAVOX_X_API_KEY = process.env.ULTRAVOX_X_API_KEY
 

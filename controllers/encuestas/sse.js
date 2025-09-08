@@ -49,26 +49,6 @@ exports.getListsChannelPhoneByCampaign = asyncHandler(
     })
   }
 )
-exports.postTestSSE = async (req, res, next) => {
-  const { campaignId } = req.body
-  const connectionId = `${campaignId}-${Date.now()}-${Math.random()}`
-
-  // Store this connection
-  activeConnections.set(connectionId, {
-    res,
-    campaignId,
-    timestamp: new Date(),
-  })
-
-  // Send initial connection confirmation
-  res.write(
-    `data: ${JSON.stringify({
-      type: 'connection',
-      message: 'Connected to call updates stream ete',
-      timestamp: new Date().toISOString(),
-    })}\n\n`
-  )
-}
 
 // NEW: SSE endpoint for real-time call updates
 exports.getCallUpdatesStream = asyncHandler(async (req, res, next) => {
@@ -99,7 +79,7 @@ exports.getCallUpdatesStream = asyncHandler(async (req, res, next) => {
   // Send initial data load
   try {
     const initialData = await getListsChannelPhoneByCampaignRequest(campaignId)
-    console.log('initialData:', initialData)
+
     res.write(
       `data: ${JSON.stringify({
         type: 'initial-load',
@@ -128,7 +108,7 @@ exports.getCallUpdatesStream = asyncHandler(async (req, res, next) => {
 
   // Listen for call updates specific to this campaign
   const handleCallUpdate = (data) => {
-    if (data.campaignId === campaignId) {
+    if (data.campaignId === parseInt(campaignId)) {
       try {
         res.write(
           `data: ${JSON.stringify({
@@ -160,7 +140,7 @@ exports.getCallUpdatesStream = asyncHandler(async (req, res, next) => {
   }
 
   const handleNewCall = (data) => {
-    if (data.campaignId === campaignId) {
+    if (data.data.campaignId === parseInt(campaignId)) {
       try {
         res.write(
           `data: ${JSON.stringify({
@@ -200,7 +180,7 @@ exports.getCallUpdatesStream = asyncHandler(async (req, res, next) => {
     console.log(`SSE connection closed for campaign ${campaignId}`)
     clearInterval(heartbeatInterval)
     activeConnections.delete(connectionId)
-    callEventEmitter.off('call-updatedd', handleCallUpdate)
+    callEventEmitter.off('call-updated', handleCallUpdate)
     callEventEmitter.off('status-changed', handleStatusChange)
     callEventEmitter.off('new-call', handleNewCall)
   }
@@ -240,11 +220,14 @@ async function getCallsData(campaignId) {
 
 // Call this when a new call is created
 exports.emitNewCall = (callData, campaignId) => {
-  callEventEmitter.emit('new-call', {
-    campaignId,
-    call: callData,
-    timestamp: new Date().toISOString(),
-  })
+  try {
+    callEventEmitter.emit('new-call', {
+      campaignId,
+      data: callData,
+    })
+  } catch (error) {
+    console.error('Error in emitNewCall:', error.message)
+  }
 }
 
 // Call this when a call status changes
@@ -267,7 +250,7 @@ exports.emitStatusChange = (
 exports.emitCallUpdate = (callData, campaignId) => {
   callEventEmitter.emit('call-updated', {
     campaignId,
-    call: callData,
+    data: callData,
     timestamp: new Date().toISOString(),
   })
 }
