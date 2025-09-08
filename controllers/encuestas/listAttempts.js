@@ -267,12 +267,12 @@ exports.callStatusByUltravoxWebhookEvents = async (req, res, next) => {
 // @route   POST /api/lists/process
 // @access  Private
 exports.processList = asyncHandler(async (req, res, next) => {
-  const campaign_id = process.env.DEFAULT_CAMPAIGN_ID
+  const { campaignId } = req.params
   const channel_id = process.env.DEFAULT_CHANNEL
 
   const listIdsToInsertQuery = `SELECT id FROM lists WHERE id NOT IN (SELECT list_id FROM list_attempts);`
 
-  const [resultIds] = await pool.query(listIdsToInsertQuery, [campaign_id])
+  const [resultIds] = await pool.query(listIdsToInsertQuery, [campaignId])
   const ids = resultIds.map((i) => i.id)
   if (ids.length > 0) {
     const values = ids.map((id) => [
