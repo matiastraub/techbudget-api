@@ -8,12 +8,17 @@ const pool = require('../config/mysql')
 
 const { generateFakeCall } = require('../utils/encuestas')
 
-exports.getUltravoxFakeCalls = asyncHandler(async (req, res, next) => {
+exports.getUltravoxFakeCallsRequest = async () => {
   const sql = `SELECT * FROM fake_ultravox`
   const [rows] = await pool.query(sql)
+  return { data: rows, total: rows.length }
+}
+
+exports.getUltravoxFakeCalls = asyncHandler(async (req, res, next) => {
+  const { data } = await this.getUltravoxFakeCallsRequest()
   res.status(200).json({
     success: true,
-    data: { data: rows },
+    data: { data },
   })
 })
 
