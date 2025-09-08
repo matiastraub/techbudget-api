@@ -6,7 +6,7 @@ const { extractCandidate } = require('../../utils/encuestas/candidates')
 const { candidatesRequest } = require('../encuestas/candidates')
 const { getUltravoxFakeCallsRequest } = require('../agents')
 
-const getUltravoxSessionsRequest = async () => {
+exports.getUltravoxSessionsRequest = async () => {
   try {
     const sql = `SELECT * FROM ultravox_sessions`
     const [rows] = await pool.query(sql)
@@ -36,7 +36,7 @@ exports.getUltravoxSessions = asyncHandler(async (req, res, next) => {
 
 exports.updateUltravoxSessionsWithCandidates = async (req, res, next) => {
   try {
-    const request = await getUltravoxSessionsRequest()
+    const request = await this.getUltravoxSessionsRequest()
     const candidates = await candidatesRequest()
     let sqlUpdate = `UPDATE ultravox_sessions SET candidate_id = ? WHERE id = ?`
     const updatedIds = []
