@@ -76,7 +76,6 @@ const getAllListAttemptsRequest = async () => {
 exports.getListAttempts = asyncHandler(async (req, res, next) => {
   try {
     const rows = await getAllListAttemptsRequest()
-    console.log('RROWS', rows)
     res.status(200).json({
       success: true,
       count: rows.length,
@@ -152,7 +151,6 @@ exports.updateListAttemptsStatusBulk = async (req, res, next) => {
     for (const { id, status, ultravoxCallId } of updates) {
       let query, params
       call = ultravoxSessions.find((c) => c.ultravox_call_id === ultravoxCallId)
-      console.log('call: ', call)
 
       if (['pending', 'calling'].includes(status) && ultravoxCallId) {
         if (call?.end_reason === 'unjoined') {
@@ -218,7 +216,7 @@ exports.updateListAttemptsStatusByUltravoxCallId = async (req, res, next) => {
       existing[0].campaign_id,
       existing[0].id
     )
-    console.log('callData to emit: ', callData)
+
     emitCallUpdate(callData, existing[0].campaign_id)
 
     const [updated] = await pool.query(

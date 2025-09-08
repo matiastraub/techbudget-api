@@ -47,8 +47,6 @@ exports.getListsChannelPhoneByCampaignAndIdRequest = async (
 ) => {
   try {
     const query = `${generalQuery()} WHERE l.campaign_id = ? AND la.id = ?`
-    console.log('query', query)
-    console.log('params', [campaignId, listAttemptId])
     const [rows] = await pool.query(query, [campaignId, listAttemptId])
     return rows
   } catch (error) {

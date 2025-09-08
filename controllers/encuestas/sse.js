@@ -55,8 +55,6 @@ exports.getCallUpdatesStream = asyncHandler(async (req, res, next) => {
   const { campaignId } = req.params
   const connectionId = `${campaignId}-${Date.now()}-${Math.random()}`
 
-  console.log(`SSE connection established for campaign ${campaignId}`)
-
   // Set SSE headers
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',
@@ -260,12 +258,9 @@ exports.broadcastToCampaignTest = async (req, res, next) => {
   //campaignId, eventType, data
 
   const { campaignId, eventType } = req.params
-  console.log('campaignId: ', campaignId)
+
   const data = {}
-  console.log('eventType:', eventType)
-  // Find all connections for this campaign
-  // Get fresh data from database
-  const freshData = await getCallsData(campaignId)
+
   const donalsito = {
     phone: '942737696',
     id: 32,
@@ -284,13 +279,12 @@ exports.broadcastToCampaignTest = async (req, res, next) => {
     joined: '2025-08-13T00:55:53.962160Z',
     ended: '2025-08-13T00:57:19.150680Z',
   }
-  //freshData.data.push(donalsito)
-  console.log('test , donalsito:', donalsito)
+
   callEventEmitter.emit(eventType, {
     campaignId,
     type: eventType,
-    data: donalsito, //freshData.data,
-    count: 0, // freshData.count,
+    data: donalsito,
+    count: 0,
     timestamp: new Date().toISOString(),
     ...data,
   })
