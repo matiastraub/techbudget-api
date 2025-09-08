@@ -4,6 +4,7 @@ const pool = require('../../config/mysql')
 const { getCallRequest } = require('../agents')
 const { extractCandidate } = require('../../utils/encuestas/candidates')
 const { candidatesRequest } = require('../encuestas/candidates')
+const { getUltravoxFakeCalls } = require('../agents')
 
 const getUltravoxSessionsRequest = async () => {
   try {
@@ -55,8 +56,11 @@ exports.updateUltravoxSessionsWithCandidates = async (req, res, next) => {
 }
 
 exports.createUltravoxSessions = async (req, res, next) => {
+  const USE_FAKE_CALLS = process.env.USE_FAKE_CALLS === 'true'
   try {
-    const calls = await getCallRequest()
+    const calls = USE_FAKE_CALLS
+      ? getUltravoxFakeCalls()
+      : await getCallRequest()
     const { data } = calls
     if (!Array.isArray(data) || data.length === 0) {
       return res.status(400).json({ success: false, msg: 'No data received' })

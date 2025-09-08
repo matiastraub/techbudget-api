@@ -1,9 +1,9 @@
 const express = require('express')
 const router = express.Router()
-const { protect } = require('../middleware/auth')
-const { getCall, createCall } = require('../controllers/agents')
+const { protect, apiAuth } = require('../middleware/auth')
+const { getCallUltravox, createCall } = require('../controllers/agents')
 
-router.route('/').get(protect, getCall)
+router.route('/').get(protect, getCallUltravox)
 
 router.route('/:promptName').post(createCall)
 

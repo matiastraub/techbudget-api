@@ -4,41 +4,49 @@ const matter = require('gray-matter')
 const path = require('path')
 const twilio = require('twilio')
 const fs = require('fs/promises')
+const pool = require('../config/mysql')
+
 const { generateFakeCall } = require('../utils/encuestas')
 
-const START_FAKE_CALLS = false
-let fakeCalls = []
-
-if (START_FAKE_CALLS) {
-  // Generate new call every 5 seconds
-  setInterval(() => {
-    fakeCalls.unshift(generateFakeCall())
-    if (fakeCalls.length > 10000) fakeCalls.pop()
-  }, 5000)
-}
-
-// @desc    Get call
-// @route   GET /api/v1/categories/:user
-// @access  Private
-exports.getCallFake = asyncHandler((req, res) => {
+exports.getUltravoxFakeCalls = asyncHandler(async (req, res, next) => {
+  const sql = `SELECT * FROM fake_ultravox`
+  const [rows] = await pool.query(sql)
   res.status(200).json({
     success: true,
-    data: { isMock: true, data: fakeCalls, total: fakeCalls.length },
+    data: { data: rows },
   })
 })
 
-exports.getCallFixData = asyncHandler((req, res) => {
-  const resp = {
-    success: true,
-    data: {
-      data: fixData,
-      total: 12,
-    },
-  }
-  res.status(200).json({
-    success: true,
-    data: { isMock: true, data: resp.data.data, total: resp.data.total },
-  })
+const createUltravoxFakeCall = asyncHandler(async (fakeCall) => {
+  const {
+    callId,
+    created,
+    joined,
+    ended,
+    joinTimeout,
+    maxDuration,
+    endReason,
+    errorCount,
+    shortSummary,
+    summary,
+  } = fakeCall
+
+  const sql = `INSERT INTO fake_ultravox 
+  (callId, created, joined, ended, joinTimeout, maxDuration, endReason, errorCount, shortSummary, summary)
+  VALUES (?,?,?,?,?,?,?,?,?,?)`
+
+  const [result] = await pool.query(sql, [
+    callId,
+    created,
+    joined,
+    ended,
+    joinTimeout,
+    maxDuration,
+    endReason,
+    errorCount,
+    shortSummary,
+    summary,
+  ])
 })
 
 exports.getCallRequest = async () => {
@@ -65,6 +73,15 @@ exports.getCallRequest = async () => {
     return error
   }
 }
+
+// @desc    Get call
+// @route   GET /api/v1/agents
+// @access  Private
+exports.getCallUltravox = asyncHandler(async (req, res) => {
+  const USE_FAKE_CALLS = process.env.USE_FAKE_CALLS === 'true'
+  if (USE_FAKE_CALLS) return await exports.getUltravoxFakeCalls(req, res)
+  return await exports.getCall(req, res)
+})
 
 exports.getCall = asyncHandler(async (req, res) => {
   const url = process.env.ULTRAVOX_API_URL
@@ -138,6 +155,7 @@ async function generateOutgoingCall(req) {
   // 🟢 If testing mode, just return fake call data
   if (USE_FAKE_CALLS) {
     const fakeCall = generateFakeCall()
+    await createUltravoxFakeCall(fakeCall)
     return {
       status: 'fake',
       msg: '🧪 Fake call generated (testing mode)',
