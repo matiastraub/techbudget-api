@@ -1,3 +1,5 @@
+const { apiAuth } = require('../../middleware/auth')
+const { getCallUltravox, createCall } = require('../../controllers/agents')
 const express = require('express')
 const router = express.Router()
 const rateLimit = require('express-rate-limit')
@@ -9,15 +11,8 @@ const ultravoxLimiter = rateLimit({
   message: 'Too many requests to Ultravox webhook',
 })
 
-const { protect, apiAuth } = require('../middleware/auth')
-const { getCallUltravox, createCall } = require('../controllers/agents')
-
-router.route('/').get(ultravoxLimiter, protect, getCallUltravox)
-
 router.route('/n8n').get(ultravoxLimiter, apiAuth, getCallUltravox)
 
 router.route('/n8n/:promptName').post(ultravoxLimiter, apiAuth, createCall)
-
-router.route('/:promptName').post(ultravoxLimiter, apiAuth, createCall)
 
 module.exports = router
