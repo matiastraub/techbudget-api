@@ -32,7 +32,7 @@ router.get(
 )
 
 router.post(
-  '/n8n/process-list',
+  '/n8n/process-list/:campaignId',
   ultravoxLimiter,
   apiAuth,
   listsController.processList
