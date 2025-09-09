@@ -96,43 +96,37 @@ exports.updateListAttemptsStatusById = async (req, res, next) => {
   try {
     const { id } = req.params
     const { status, ultravoxCallId } = req.body
-    let query, params
+    let queryUpdate, params
     if (status !== 'pending' && ultravoxCallId) {
-      query = `UPDATE list_attempts SET status = ?,ultravox_call_id  = ? WHERE id = ?`
+      queryUpdate = `UPDATE list_attempts SET status = ?,ultravox_call_id  = ? WHERE id = ?`
       params = [status, ultravoxCallId, id]
     } else {
-      query = `UPDATE list_attempts SET status = ? WHERE id = ?`
+      queryUpdate = `UPDATE list_attempts SET status = ? WHERE id = ?`
       params = [status, id]
     }
-
-    const [existing] = await pool.query(
-      'SELECT * FROM list_attempts WHERE id = ?',
-      [id]
-    )
-    if (existing.length === 0) {
-      return next(
-        new ErrorResponse(`Municipality not found with id ${id}`, 404)
-      )
-    }
-
+    //Before Update
     const querySelect = `SELECT la.id,l.campaign_id, la.list_id,la.channel_id, la.attempt_time, la.status,
                           la.notes, la.ultravox_call_id FROM list_attempts la 
                           INNER JOIN lists l ON l.id = la.list_id
                           WHERE la.id = ?`
-    await pool.query(query, params)
+    const [existing] = await pool.query(querySelect, [id])
+    if (existing.length === 0) {
+      res.status(200).json({ success: true, data: [] })
+    }
+    await pool.query(queryUpdate, params)
+    //After Update
     const [rows] = await pool.query(querySelect, [id])
 
-    const campaignId = rows.campaign_id
+    const campaignId = rows[0].campaign_id
+
     const callData = await getListsChannelPhoneByCampaignAndIdRequest(
       campaignId,
       id
     )
-
     emitCallUpdate(callData, campaignId)
-    res.status(200).json({ success: true, data: rows[0] })
+    res.status(200).json({ success: true, data: callData })
   } catch (error) {
     console.error('DB Error:', error.message)
-    //return next(new ErrorResponse('Error updating', 500))
     res.status(401).json({ success: false, msg: error.message })
   }
 }
