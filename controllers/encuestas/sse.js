@@ -106,7 +106,7 @@ exports.getCallUpdatesStream = asyncHandler(async (req, res, next) => {
 
   // Listen for call updates specific to this campaign
   const handleCallUpdate = (data) => {
-    if (data.campaignId === parseInt(campaignId)) {
+    if (parseInt(data.campaignId) === parseInt(campaignId)) {
       try {
         res.write(
           `data: ${JSON.stringify({
