@@ -63,47 +63,44 @@ exports.updateUltravoxSessionsWithCandidates = async (req, res, next) => {
 // @access  Private
 exports.createUltravoxSessions = async (req, res, next) => {
   const { campaignId } = req.params
-
   const USE_FAKE_CALLS = process.env.USE_FAKE_CALLS === 'true'
+
   try {
     const calls = USE_FAKE_CALLS
       ? await getUltravoxFakeCallsRequest()
       : await getCallRequest()
+
     const { data } = calls
     if (!Array.isArray(data) || data.length === 0) {
       return res.status(400).json({ success: false, msg: 'No data received' })
     }
 
-    const sqlGet = `SELECT * FROM ultravox_sessions`
-    const [mySessionUltraVox] = await pool.query(sqlGet)
+    // Only fetch IDs
+    const sqlGet = `SELECT ultravox_call_id FROM ultravox_sessions WHERE campaign_id = ?`
+    const [mySessionUltraVox] = await pool.query(sqlGet, [campaignId])
 
-    // Extract IDs
     const getIds = data.map((i) => i.callId)
     const sessionIds = mySessionUltraVox.map((i) => i.ultravox_call_id)
 
-    // 1. Check if identical (ignoring order)
     const areIdentical =
       getIds.length === sessionIds.length &&
       getIds.every((id) => sessionIds.includes(id))
 
     if (areIdentical) {
-      res.status(200).json({
+      return res.status(200).json({
         success: true,
         count: 0,
         data: [],
       })
     }
 
-    // 2. Find missing ones
     const missingIds = getIds.filter((id) => !sessionIds.includes(id))
 
-    // 3. Insert missing (example: pushing into mySessionUltraVox)
     if (missingIds.length > 0) {
       const missingCalls = data.filter((call) =>
         missingIds.includes(call.callId)
       )
 
-      // Prepare values for bulk insert
       const values = missingCalls.map((item) => [
         item.billedDuration || null,
         campaignId,
@@ -115,16 +112,25 @@ exports.createUltravoxSessions = async (req, res, next) => {
         item.summary ? item.summary.substring(0, 700) : null,
         item.callId || null,
       ])
-      const insertQuery = `INSERT INTO ultravox_sessions (billed_duration, campaign_id, created, end_reason, ended, joined, short_summary, summary, ultravox_call_id) VALUES ? `
-      const [resultInsert] = await pool.query(insertQuery, [values])
+
+      const insertQuery = `INSERT INTO ultravox_sessions 
+        (billed_duration, campaign_id, created, end_reason, ended, joined, short_summary, summary, ultravox_call_id) 
+        VALUES ?`
+
+      await pool.query(insertQuery, [values])
 
       const sqlAfterUpdate = `SELECT * FROM ultravox_sessions WHERE ultravox_call_id IN (?);`
-
       const [rows] = await pool.query(sqlAfterUpdate, [missingIds])
 
-      res.status(200).json({ success: true, count: rows.length, data: rows })
+      return res
+        .status(200)
+        .json({ success: true, count: rows.length, data: rows })
     }
+
+    // if missingIds.length === 0 but not identical
+    return res.status(200).json({ success: true, count: 0, data: [] })
   } catch (error) {
-    res.status(401).json({ success: false, data: error })
+    console.error(error)
+    return res.status(500).json({ success: false, msg: error.message })
   }
 }
