@@ -78,8 +78,8 @@ exports.getListsChannelPhoneByCampaign = asyncHandler(
   }
 )
 
-const getAllListAttemptsRequestByStatus = async (status) => {
-  let query = `SELECT ca.id, c.phone,  m.name AS municipality,ch.name AS channel,
+const getAllListAttemptsRequestByStatus = async (status, campaignId) => {
+  let query = `SELECT c.campaign_id, ca.id, c.phone,  m.name AS municipality,ch.name AS channel,
       ca.status, ca.attempt_time AS created,ca.ultravox_call_id AS ultravoxCallId
       FROM list_attempts ca
       INNER JOIN lists c ON ca.list_id = c.id
@@ -88,11 +88,12 @@ const getAllListAttemptsRequestByStatus = async (status) => {
 
   try {
     if (['answered', 'pending', 'failed'].includes(status)) {
-      query = `${query} WHERE ca.status = ?`
-      let [results] = await pool.query(query, [status])
+      query = `${query} WHERE ca.status = ? AND c.campaign_id = ?`
+      let [results] = await pool.query(query, [status, campaignId])
       return results
     } else {
-      let [results] = await pool.query(query)
+      query = `${query} WHERE c.campaign_id = ?`
+      let [results] = await pool.query(query, [campaignId])
       return results
     }
   } catch (err) {
@@ -101,7 +102,12 @@ const getAllListAttemptsRequestByStatus = async (status) => {
   }
 }
 
+// @desc    Get all list attempts by status and campaign id
+// @route   GET  api/n8n/byStatus/:status?campaignId=xx
+// @access  Private
 exports.getListAttemptsByStatus = async (req, res, next) => {
-  const data = await getAllListAttemptsRequestByStatus(req?.params?.status)
+  const status = req?.params?.status
+  const campaignId = req?.query?.campaignId
+  const data = await getAllListAttemptsRequestByStatus(status, campaignId)
   return res.status(200).json({ success: true, count: data.length, data })
 }

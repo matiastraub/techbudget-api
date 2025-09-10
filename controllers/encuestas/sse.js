@@ -106,7 +106,7 @@ exports.getCallUpdatesStream = asyncHandler(async (req, res, next) => {
 
   // Listen for call updates specific to this campaign
   const handleCallUpdate = (data) => {
-    if (data.campaignId === parseInt(campaignId)) {
+    if (parseInt(data.campaignId) === parseInt(campaignId)) {
       try {
         res.write(
           `data: ${JSON.stringify({
@@ -246,10 +246,13 @@ exports.emitStatusChange = (
 
 // Call this when a call is updated
 exports.emitCallUpdate = (callData, campaignId) => {
-  callEventEmitter.emit('call-updated', {
-    campaignId,
-    data: callData,
-    timestamp: new Date().toISOString(),
+  setImmediate(() => {
+    console.log('setImmediate: ', callData)
+    callEventEmitter.emit('call-updated', {
+      campaignId,
+      data: callData,
+      timestamp: new Date().toISOString(),
+    })
   })
 }
 
