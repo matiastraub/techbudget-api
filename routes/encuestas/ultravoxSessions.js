@@ -19,7 +19,7 @@ router.get(
   ultravoxSessions.getUltravoxSessions
 )
 router.post(
-  '/n8n',
+  '/n8n/:campaignId',
   ultravoxLimiter,
   apiAuth,
   ultravoxSessions.createUltravoxSessions
