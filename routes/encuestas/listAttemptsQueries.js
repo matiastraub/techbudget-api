@@ -31,7 +31,7 @@ router.get(
 )
 
 router.patch(
-  '/n8n/update-lists',
+  '/n8n/update-lists/:campaignId',
   apiAuth,
   listAttemptsController.updateListAttemptsStatusBulk
 )
