@@ -34,6 +34,9 @@ exports.getUltravoxSessions = asyncHandler(async (req, res, next) => {
   }
 })
 
+// @desc    Update
+// @route   PATCH /api/encuestas/ultravox_sessions/n8n/update-candidates
+// @access  Private
 exports.updateUltravoxSessionsWithCandidates = async (req, res, next) => {
   try {
     const request = await this.getUltravoxSessionsRequest()
@@ -55,7 +58,12 @@ exports.updateUltravoxSessionsWithCandidates = async (req, res, next) => {
   }
 }
 
+// @desc    Create ultravox sessions
+// @route   POST /api/encuestas/ultravox-sessions/n8n/:campaingId
+// @access  Private
 exports.createUltravoxSessions = async (req, res, next) => {
+  const { campaignId } = req.params
+
   const USE_FAKE_CALLS = process.env.USE_FAKE_CALLS === 'true'
   try {
     const calls = USE_FAKE_CALLS
@@ -98,7 +106,7 @@ exports.createUltravoxSessions = async (req, res, next) => {
       // Prepare values for bulk insert
       const values = missingCalls.map((item) => [
         item.billedDuration || null,
-        process.env.DEFAULT_CAMPAIGN_ID, // fixed campaign_id
+        campaignId,
         item.created || null,
         item.endReason || null,
         item.ended || null,
@@ -109,10 +117,12 @@ exports.createUltravoxSessions = async (req, res, next) => {
       ])
       const insertQuery = `INSERT INTO ultravox_sessions (billed_duration, campaign_id, created, end_reason, ended, joined, short_summary, summary, ultravox_call_id) VALUES ? `
       const [resultInsert] = await pool.query(insertQuery, [values])
-      const { insertId } = resultInsert
-      res
-        .status(200)
-        .json({ success: true, count: data.length, data: insertId })
+
+      const sqlAfterUpdate = `SELECT * FROM ultravox_sessions WHERE ultravox_call_id IN (?);`
+
+      const [rows] = await pool.query(sqlAfterUpdate, [missingIds])
+
+      res.status(200).json({ success: true, count: rows.length, data: rows })
     }
   } catch (error) {
     res.status(401).json({ success: false, data: error })
