@@ -1,12 +1,12 @@
 const { randomUUID } = require('crypto')
 
 const endReasonWeights = {
-  unjoined: 0.3, // 30%
-  hangup: 0.3, // 30%
-  agent_hangup: 0.3, // 30%
+  hangup: 0.6, // 60%
+  agent_hangup: 0.1, // 10%
+  unjoined: 0.2, // 20%
   timeout: 0.05, // 5%
-  connection_error: 0.025, // 2.5%
-  system_error: 0.025, // 2.5%
+  connection_error: 0.03, // 3%
+  system_error: 0.02, // 2%
 }
 
 // Helper to pick weighted random
