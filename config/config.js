@@ -4,8 +4,10 @@ module.exports = {
   port: 5173,
   portTech: 5174,
   limiter: {
-    windowMs: 10 * 60 * 1000, // 10 minutes
-    max: 100, // 100 requests max
+    // windowMs: 10 * 60 * 1000, // 10 minutes
+    // max: 100, // 100 requests max
+    windowMs: 1 * 60 * 1000, // 1 minute
+    max: 1000, // allow more requests
   },
   earthRadius: {
     km: 6378,
