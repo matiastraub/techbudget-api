@@ -20,15 +20,15 @@ module.exports = {
   tokenExpires: 10 * 1000,
   domain: {
     development: `http://localhost:5173`,
-    production: `https://www.techbudget.io`,
+    production: `https://www.thinkbudget.one`,
   },
   allowedOrigins: [
     `http://localhost:5173`,
     `http://localhost:5174`,
     `http://localhost`,
     `https://localhost`,
-    `https://techbudget.io`,
-    `https://www.techbudget.io`,
+    `https://thinkbudget.one`,
+    `https://www.thinkbudget.one`,
     `https://encuestas.halo.cl`,
   ],
   emailSender: 'gogogol',

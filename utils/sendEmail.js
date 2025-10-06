@@ -191,7 +191,7 @@ const objectToQueryString = (obj) => {
  * Get Email template
  */
 const getEmailTemplate = (req, user, templateName, link) => {
-  const basicUrl = `https://www.techbudget.io`
+  const basicUrl = `https://www.thinkbudget.one`
   //TODO: Move to configs
   const logoUrl = `${basicUrl}/public/uploads/logo.png`
   let message = fs.readFileSync(
