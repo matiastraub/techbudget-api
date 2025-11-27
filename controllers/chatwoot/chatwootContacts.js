@@ -5,7 +5,7 @@ const axios = require('axios')
 
 exports.getContactsByPhone = async (req, res, next) => {
   const phoneNumber = req.params.phoneNumber
-  console.log('Searching for phone number:', phoneNumber)
+  //TODO Move to a DB
   const accounts = [
     {
       name: 'halo',
@@ -20,6 +20,20 @@ exports.getContactsByPhone = async (req, res, next) => {
       accountId: 3,
       apiToken: process.env['API-KEY-CHATWOOT-AUTERIA'],
       inboxId: 2,
+    },
+    {
+      name: 'ISU Auto',
+      chatwootUrl: 'https://services.halo.cl',
+      accountId: 4,
+      apiToken: process.env['API-KEY-CHATWOOT-AUTERIA'],
+      inboxId: 5,
+    },
+    {
+      name: 'Vendo Autos',
+      chatwootUrl: 'https://services.halo.cl',
+      accountId: 5,
+      apiToken: process.env['API-KEY-CHATWOOT-AUTERIA'],
+      inboxId: 6,
     },
   ]
 
