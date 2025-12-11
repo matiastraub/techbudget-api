@@ -35,6 +35,13 @@ exports.getContactsByPhone = async (req, res, next) => {
       apiToken: process.env['API-KEY-CHATWOOT-AUTERIA'],
       inboxId: 6,
     },
+    {
+      name: 'Agusavi',
+      chatwootUrl: 'https://services.halo.cl',
+      accountId: 6,
+      apiToken: process.env['API-KEY-CHATWOOT-HALO'],
+      inboxId: 7,
+    },
   ]
 
   async function findContact() {
