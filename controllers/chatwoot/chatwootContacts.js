@@ -3,8 +3,16 @@ const asyncHandler = require('../../middleware/async')
 const pool = require('../../config/mysql')
 const axios = require('axios')
 
+// utility: mask API token before sending in response
+function maskToken(token) {
+  if (!token) return null
+  if (token.length <= 8) return '****'
+  return token.slice(0, 4) + '...' + token.slice(-4)
+}
+
 exports.getContactsByPhone = async (req, res, next) => {
   const phoneNumber = req.params.phoneNumber
+
   //TODO Move to a DB
   const accounts = [
     {
@@ -44,30 +52,67 @@ exports.getContactsByPhone = async (req, res, next) => {
     },
   ]
 
-  async function findContact() {
+  async function findAllContacts() {
+    const allMatches = []
+
     for (const account of accounts) {
       try {
         const response = await axios.get(
           `${account.chatwootUrl}/api/v1/accounts/${account.accountId}/contacts/search`,
           {
             params: { q: phoneNumber },
-            headers: {
-              api_access_token: account.apiToken,
-            },
+            headers: { api_access_token: account.apiToken },
           }
         )
 
-        if (response.data && response.data.payload.length > 0) {
-          return { contact: response.data.payload[0], account }
+        const payload = response.data?.payload
+        if (payload && payload.length > 0) {
+          // pick last in this payload
+          const last = payload[payload.length - 1]
+
+          allMatches.push({ contact: last, account })
         }
       } catch (err) {
         console.error(`Error searching account ${account.name}:`, err.message)
       }
     }
-    return { contact: null, account: null }
+
+    if (allMatches.length === 0) {
+      return { contact: null, account: null }
+    }
+
+    // pick the one with the latest last_activity_at
+    const best = allMatches.reduce((a, b) => {
+      return (a.contact.last_activity_at || 0) >
+        (b.contact.last_activity_at || 0)
+        ? a
+        : b
+    })
+
+    // determine correct account from contact inbox
+    let matchedAccount = null
+    const inboxes = best.contact.contact_inboxes || []
+
+    for (const ci of inboxes) {
+      const inboxId = ci?.inbox?.id
+      if (!inboxId) continue
+
+      matchedAccount = accounts.find((a) => a.inboxId === inboxId)
+      if (matchedAccount) break
+    }
+
+    const finalAccount = matchedAccount || best.account
+
+    return {
+      contact: best.contact,
+      account: {
+        ...finalAccount,
+        apiToken: finalAccount.apiToken, //maskToken(finalAccount.apiToken),
+      },
+    }
   }
 
-  const result = await findContact()
+  const result = await findAllContacts()
 
   res.status(200).json({
     success: true,
