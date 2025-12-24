@@ -37,6 +37,9 @@
     "node-geocoder": "^4.2.0",
     "nodemailer": "^6.9.3",
     "nodemon": "^3.1.0",
+    "puppeteer": "^24.34.0",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
     "twilio": "^5.7.0",
     "xss-clean": "^0.1.4"
   },
