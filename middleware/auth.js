@@ -20,6 +20,26 @@ exports.protect = asyncHandler(async (req, res, next) => {
 })
 
 // Protect routes through API key
+exports.apiAuthAloAutos = asyncHandler(async (req, res, next) => {
+  const authHeader = req.headers['authorization'] || ''
+  const apiKey = req.headers['x-api-key']
+
+  // Check API key first (machine-to-machine)
+  if (apiKey && apiKey === process.env['X-API-KEY-ALOAUTOS']) {
+    return next()
+  }
+
+  // Otherwise check JWT token (browser calls)
+  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null
+  if (token) {
+    // verify JWT...
+    return next()
+  }
+
+  return next(new ErrorResponse('Not authorized to access this route', 401))
+})
+
+// Protect routes through API key
 exports.apiAuthChileAutos = asyncHandler(async (req, res, next) => {
   const authHeader = req.headers['authorization'] || ''
   const apiKey = req.headers['x-api-key']
