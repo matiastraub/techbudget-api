@@ -1,4 +1,5 @@
 const axios = require('axios')
+const crypto = require('crypto')
 const pool = require('../config/mysql')
 
 /**
@@ -7,15 +8,19 @@ const pool = require('../config/mysql')
  * =========================
  */
 
+// Generar PKCE
+function generateCodeVerifier() {
+  return crypto.randomBytes(32).toString('hex')
+}
+
+function generateCodeChallenge(verifier) {
+  return crypto.createHash('sha256').update(verifier).digest('base64url') // importante: base64url
+}
+
 // Buscar cliente por meli_user_id
 async function getCustomerByMeliUserId(meliUserId) {
   try {
-    const query = `
-      SELECT *
-      FROM meli_integrations
-      WHERE meli_user_id = ?
-      LIMIT 1
-    `
+    const query = `SELECT * FROM meli_integrations WHERE meli_user_id = ? LIMIT 1`
     const [rows] = await pool.query(query, [meliUserId])
     return rows[0] || null
   } catch (error) {
@@ -24,23 +29,26 @@ async function getCustomerByMeliUserId(meliUserId) {
   }
 }
 
-// Guardar tokens en la DB
+// Guardar tokens en la DB (y code_verifier temporal)
 async function saveMercadoLibreTokens({
   customerId,
   userId,
   accessToken,
   refreshToken,
   expiresIn,
+  codeVerifier = null,
 }) {
   try {
     const tokenExpiry = Date.now() + expiresIn * 1000 - 60000 // -1 min por seguridad
     const query = `
-      INSERT INTO meli_integrations (dealer_id, meli_user_id, meli_access_token, meli_refresh_token, token_expires_at)
-      VALUES (?, ?, ?, ?, ?)
+      INSERT INTO meli_integrations
+        (dealer_id, meli_user_id, meli_access_token, meli_refresh_token, token_expires_at, code_verifier)
+      VALUES (?, ?, ?, ?, ?, ?)
       ON DUPLICATE KEY UPDATE
         meli_access_token = VALUES(meli_access_token),
         meli_refresh_token = VALUES(meli_refresh_token),
-        token_expires_at = VALUES(token_expires_at)
+        token_expires_at = VALUES(token_expires_at),
+        code_verifier = VALUES(code_verifier)
     `
     await pool.query(query, [
       customerId,
@@ -48,6 +56,7 @@ async function saveMercadoLibreTokens({
       accessToken,
       refreshToken,
       tokenExpiry,
+      codeVerifier,
     ])
   } catch (error) {
     console.error('saveMercadoLibreTokens error:', error.message)
@@ -59,11 +68,7 @@ async function getValidAccessToken(integration) {
   if (!integration) return null
 
   const now = Date.now()
-
-  // Token válido
-  if (now < integration.token_expires_at) {
-    return integration.meli_access_token
-  }
+  if (now < integration.token_expires_at) return integration.meli_access_token
 
   try {
     const response = await axios.post(
@@ -74,9 +79,7 @@ async function getValidAccessToken(integration) {
         client_secret: process.env.ML_CLIENT_SECRET,
         refresh_token: integration.meli_refresh_token,
       },
-      {
-        headers: { 'Content-Type': 'application/json' },
-      }
+      { headers: { 'Content-Type': 'application/json' } }
     )
 
     const { access_token, refresh_token, expires_in } = response.data
@@ -84,9 +87,7 @@ async function getValidAccessToken(integration) {
 
     const query = `
       UPDATE meli_integrations
-      SET meli_access_token = ?, 
-          meli_refresh_token = ?, 
-          token_expires_at = ?
+      SET meli_access_token = ?, meli_refresh_token = ?, token_expires_at = ?
       WHERE dealer_id = ?
     `
     await pool.query(query, [
@@ -127,15 +128,29 @@ async function enqueueToN8N(payload) {
  * =========================
  */
 
-// Paso 1: Redirigir al usuario a OAuth de Mercado Libre
-exports.connectMercadoLibre = (req, res) => {
+// Paso 1: Redirigir al usuario a OAuth de Mercado Libre (con PKCE)
+exports.connectMercadoLibre = async (req, res) => {
   const clientId = process.env.ML_CLIENT_ID
   const redirectUri = process.env.ML_REDIRECT_URI
   const customerId = req.query.customerId
 
+  // Generar PKCE
+  const codeVerifier = generateCodeVerifier()
+  const codeChallenge = generateCodeChallenge(codeVerifier)
+
+  // Guardar code_verifier temporal en DB
+  await saveMercadoLibreTokens({
+    customerId,
+    codeVerifier,
+    userId: 0,
+    accessToken: '',
+    refreshToken: '',
+    expiresIn: 3600,
+  })
+
   const url = `${process.env.ML_AUTH_URL}?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(
     redirectUri
-  )}&state=${encodeURIComponent(customerId)}`
+  )}&state=${encodeURIComponent(customerId)}&code_challenge=${codeChallenge}&code_challenge_method=S256`
 
   res.redirect(url)
 }
@@ -145,6 +160,12 @@ exports.mercadoLibreCallback = async (req, res) => {
   const { code, state: customerId } = req.query
 
   try {
+    // Leer code_verifier desde DB
+    const integration = await getCustomerByMeliUserId(0) // temporalmente buscamos por dealer_id=customerId
+    const codeVerifier = integration?.code_verifier
+    if (!codeVerifier)
+      throw new Error('Missing code_verifier for dealer ' + customerId)
+
     const response = await axios.post(
       'https://api.mercadolibre.com/oauth/token',
       new URLSearchParams({
@@ -153,6 +174,7 @@ exports.mercadoLibreCallback = async (req, res) => {
         client_secret: process.env.ML_CLIENT_SECRET,
         code,
         redirect_uri: process.env.ML_REDIRECT_URI,
+        code_verifier: codeVerifier,
       })
     )
 
@@ -164,6 +186,7 @@ exports.mercadoLibreCallback = async (req, res) => {
       accessToken: access_token,
       refreshToken: refresh_token,
       expiresIn: expires_in,
+      codeVerifier: null, // limpiar
     })
 
     res.redirect(
@@ -172,7 +195,7 @@ exports.mercadoLibreCallback = async (req, res) => {
   } catch (error) {
     console.error(error.response?.data || error)
     res.redirect(
-      `https://www.halo.cl/es/integrations?status=success&dealer=${customerId}`
+      `https://www.halo.cl/es/integrations?status=error&dealer=${customerId}`
     )
   }
 }
@@ -180,22 +203,18 @@ exports.mercadoLibreCallback = async (req, res) => {
 // Paso 3: Webhook para recibir mensajes y otros eventos
 exports.mercadoLibreWebhook = async (req, res) => {
   try {
-    // Responder rápido
     res.sendStatus(200)
 
     const { topic, resource, user_id, application_id } = req.body
     if (!topic || !resource || !user_id) return
     if (application_id !== process.env.ML_CLIENT_ID) return
 
-    // Buscar integración
     const integration = await getCustomerByMeliUserId(user_id)
     if (!integration) return
 
-    // Access token válido
     const accessToken = await getValidAccessToken(integration)
     if (!accessToken) return
 
-    // Solo para mensajes por ahora
     if (topic === 'messages') {
       const messageResp = await axios.get(
         `https://api.mercadolibre.com${resource}`,
@@ -206,7 +225,7 @@ exports.mercadoLibreWebhook = async (req, res) => {
 
       await enqueueToN8N({
         source: 'mercadolibre',
-        dealer_id: integration.dealer_id, // autitos
+        dealer_id: integration.dealer_id,
         seller_id: user_id,
         topic,
         payload: messageResp.data,
