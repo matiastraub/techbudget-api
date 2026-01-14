@@ -11,7 +11,7 @@ const {
 router.get('/connect', connectMercadoLibre)
 
 // 2. Callback OAuth (Redirect URI)
-router.get('/callback', mercadoLibreCallback)
+router.get('/oauth/callback', mercadoLibreCallback)
 
 // 3. Webhooks (opcional)
 router.post('/webhook', mercadoLibreWebhook)
