@@ -41,6 +41,7 @@ const whatsAppRouter = require('./routes/whatsApp')
 const vehiclesRouter = require('./routes/vehiculos')
 const chatwootRouter = require('./routes/chatwoot/chatwootContacts')
 const finderRouter = require('./routes/finder')
+const meliRouter = require('./routes/mercadolibre')
 
 // Body parser
 app.use(express.json())
@@ -123,6 +124,7 @@ app.use(`${config.apiUrl}/vehiculos`, vehiclesRouter)
 app.use(`${config.apiUrl}/whatsapp`, whatsAppRouter)
 app.use(`${config.apiUrl}/chatwoot`, chatwootRouter)
 app.use(`${config.apiUrl}/finder`, finderRouter)
+app.use(`${config.apiUrl}/mercadolibre`, meliRouter)
 
 const uploadPath = path.join(__dirname, 'public/uploads')
 

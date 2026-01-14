@@ -1,0 +1,218 @@
+const axios = require('axios')
+const pool = require('../config/mysql')
+
+/**
+ * =========================
+ * HELPERS
+ * =========================
+ */
+
+// Buscar cliente por meli_user_id
+async function getCustomerByMeliUserId(meliUserId) {
+  try {
+    const query = `
+      SELECT *
+      FROM meli_integrations
+      WHERE meli_user_id = ?
+      LIMIT 1
+    `
+    const [rows] = await pool.query(query, [meliUserId])
+    return rows[0] || null
+  } catch (error) {
+    console.error('getCustomerByMeliUserId error:', error.message)
+    return null
+  }
+}
+
+// Guardar tokens en la DB
+async function saveMercadoLibreTokens({
+  customerId,
+  userId,
+  accessToken,
+  refreshToken,
+  expiresIn,
+}) {
+  try {
+    const tokenExpiry = Date.now() + expiresIn * 1000 - 60000 // -1 min por seguridad
+    const query = `
+      INSERT INTO meli_integrations (dealer_id, meli_user_id, meli_access_token, meli_refresh_token, token_expires_at)
+      VALUES (?, ?, ?, ?, ?)
+      ON DUPLICATE KEY UPDATE
+        meli_access_token = VALUES(meli_access_token),
+        meli_refresh_token = VALUES(meli_refresh_token),
+        token_expires_at = VALUES(token_expires_at)
+    `
+    await pool.query(query, [
+      customerId,
+      userId,
+      accessToken,
+      refreshToken,
+      tokenExpiry,
+    ])
+  } catch (error) {
+    console.error('saveMercadoLibreTokens error:', error.message)
+  }
+}
+
+// Obtener access token válido (refresh si es necesario)
+async function getValidAccessToken(integration) {
+  if (!integration) return null
+
+  const now = Date.now()
+
+  // Token válido
+  if (now < integration.token_expires_at) {
+    return integration.meli_access_token
+  }
+
+  try {
+    const response = await axios.post(
+      'https://api.mercadolibre.com/oauth/token',
+      {
+        grant_type: 'refresh_token',
+        client_id: process.env.ML_CLIENT_ID,
+        client_secret: process.env.ML_CLIENT_SECRET,
+        refresh_token: integration.meli_refresh_token,
+      },
+      {
+        headers: { 'Content-Type': 'application/json' },
+      }
+    )
+
+    const { access_token, refresh_token, expires_in } = response.data
+    const newExpiry = Date.now() + expires_in * 1000 - 60000
+
+    const query = `
+      UPDATE meli_integrations
+      SET meli_access_token = ?, 
+          meli_refresh_token = ?, 
+          token_expires_at = ?
+      WHERE dealer_id = ?
+    `
+    await pool.query(query, [
+      access_token,
+      refresh_token,
+      newExpiry,
+      integration.dealer_id,
+    ])
+
+    return access_token
+  } catch (error) {
+    console.error('Error refreshing MeLi access token:', error.message)
+    return null
+  }
+}
+
+// Enviar payload a N8N
+async function enqueueToN8N(payload) {
+  if (!payload) return false
+  try {
+    await axios.post(process.env.N8N_ML_WEBHOOK_URL, payload, {
+      headers: { 'Content-Type': 'application/json' },
+      timeout: 2000,
+    })
+    console.log(
+      `Enqueued to N8N: dealer_id=${payload.dealer_id}, source=${payload.source}`
+    )
+    return true
+  } catch (error) {
+    console.error('Failed to enqueue to N8N:', error.message)
+    return false
+  }
+}
+
+/**
+ * =========================
+ * CONTROLLERS
+ * =========================
+ */
+
+// Paso 1: Redirigir al usuario a OAuth de Mercado Libre
+exports.connectMercadoLibre = (req, res) => {
+  const clientId = process.env.ML_CLIENT_ID
+  const redirectUri = process.env.ML_REDIRECT_URI
+  const customerId = req.query.customerId
+
+  const url = `${process.env.ML_AUTH_URL}?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(
+    redirectUri
+  )}&state=${encodeURIComponent(customerId)}`
+
+  res.redirect(url)
+}
+
+// Paso 2: Callback OAuth de Mercado Libre
+exports.mercadoLibreCallback = async (req, res) => {
+  const { code, state: customerId } = req.query
+
+  try {
+    const response = await axios.post(
+      'https://api.mercadolibre.com/oauth/token',
+      new URLSearchParams({
+        grant_type: 'authorization_code',
+        client_id: process.env.ML_CLIENT_ID,
+        client_secret: process.env.ML_CLIENT_SECRET,
+        code,
+        redirect_uri: process.env.ML_REDIRECT_URI,
+      })
+    )
+
+    const { access_token, refresh_token, user_id, expires_in } = response.data
+
+    await saveMercadoLibreTokens({
+      customerId,
+      userId: user_id,
+      accessToken: access_token,
+      refreshToken: refresh_token,
+      expiresIn: expires_in,
+    })
+
+    res.redirect(
+      `https://www.halo.cl/es/integrations?status=success&dealer=${customerId}`
+    )
+  } catch (error) {
+    console.error(error.response?.data || error)
+    res.redirect(
+      `https://www.halo.cl/es/integrations?status=success&dealer=${customerId}`
+    )
+  }
+}
+
+// Paso 3: Webhook para recibir mensajes y otros eventos
+exports.mercadoLibreWebhook = async (req, res) => {
+  try {
+    // Responder rápido
+    res.sendStatus(200)
+
+    const { topic, resource, user_id, application_id } = req.body
+    if (!topic || !resource || !user_id) return
+    if (application_id !== process.env.ML_CLIENT_ID) return
+
+    // Buscar integración
+    const integration = await getCustomerByMeliUserId(user_id)
+    if (!integration) return
+
+    // Access token válido
+    const accessToken = await getValidAccessToken(integration)
+    if (!accessToken) return
+
+    // Solo para mensajes por ahora
+    if (topic === 'messages') {
+      const messageResp = await axios.get(
+        `https://api.mercadolibre.com${resource}`,
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }
+      )
+
+      await enqueueToN8N({
+        source: 'mercadolibre',
+        dealer_id: integration.dealer_id, // autitos
+        seller_id: user_id,
+        topic,
+        payload: messageResp.data,
+      })
+    }
+  } catch (error) {
+    console.error('MeLi webhook error:', error.message)
+  }
+}
