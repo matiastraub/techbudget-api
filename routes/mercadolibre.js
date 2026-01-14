@@ -8,10 +8,10 @@ const {
 } = require('../controllers/mercadolibre')
 
 // 1. Inicia OAuth (redirige a ML)
-router.get('/oauth/connect', connectMercadoLibre)
+router.get('/connect', connectMercadoLibre)
 
 // 2. Callback OAuth (Redirect URI)
-router.get('/oauth/callback', mercadoLibreCallback)
+router.get('/callback', mercadoLibreCallback)
 
 // 3. Webhooks (opcional)
 router.post('/webhook', mercadoLibreWebhook)
