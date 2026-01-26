@@ -198,6 +198,11 @@ exports.mercadoLibreCallback = async (req, res) => {
 }
 
 exports.getConnectToN8N = async (req, res) => {
+  const payload = {
+    source: 'mercadolibre',
+    payload: req?.query,
+  }
+  await enqueueToN8N(payload)
   res.sendStatus(200)
 }
 
