@@ -112,9 +112,6 @@ async function enqueueToN8N(payload) {
       headers: { 'Content-Type': 'application/json' },
       timeout: 2000,
     })
-    console.log(
-      `Enqueued to N8N: dealer_id=${payload.dealer_id}, source=${payload.source}`
-    )
     return true
   } catch (error) {
     console.error('Failed to enqueue to N8N:', error.message)
@@ -198,6 +195,19 @@ exports.mercadoLibreCallback = async (req, res) => {
       `https://www.halo.cl/es/integrations?status=error&dealer=${customerId}`
     )
   }
+}
+
+exports.getConnectToN8N = async (req, res) => {
+  res.sendStatus(200)
+}
+
+exports.postConnectToN8N = async (req, res) => {
+  const payload = {
+    source: 'mercadolibre',
+    payload: req.body,
+  }
+  await enqueueToN8N(payload)
+  res.sendStatus(200)
 }
 
 exports.getMercadoLibreWebhook = async (req, res) => {
