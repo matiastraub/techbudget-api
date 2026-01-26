@@ -161,7 +161,7 @@ exports.mercadoLibreCallback = async (req, res) => {
 
   try {
     // Leer code_verifier desde DB
-    const integration = await getCustomerByMeliUserId(0) // temporalmente buscamos por dealer_id=customerId
+    const integration = await getCustomerByMeliUserId(0) //Se busca el user_id=0 (creado al conectar) temporalmente buscamos por dealer_id=customerId
     const codeVerifier = integration?.code_verifier
     if (!codeVerifier)
       throw new Error('Missing code_verifier for dealer ' + customerId)
@@ -198,6 +198,12 @@ exports.mercadoLibreCallback = async (req, res) => {
       `https://www.halo.cl/es/integrations?status=error&dealer=${customerId}`
     )
   }
+}
+
+exports.getMercadoLibreWebhook = async (req, res) => {
+  // Mercado Libre envía una validación GET
+  console.log('req: ', req)
+  res.sendStatus(200)
 }
 
 // Paso 3: Webhook para recibir mensajes y otros eventos
