@@ -6,6 +6,8 @@ const {
   mercadoLibreCallback,
   mercadoLibreWebhook,
   getMercadoLibreWebhook,
+  getConnectToN8N,
+  postConnectToN8N,
 } = require('../controllers/mercadolibre')
 
 // 1. Inicia OAuth (redirige a ML)
@@ -18,5 +20,8 @@ router.get('/oauth/callback', mercadoLibreCallback)
 router.post('/webhook', mercadoLibreWebhook)
 
 router.get('/webhook', getMercadoLibreWebhook)
+
+router.get('/webhook/v2', getConnectToN8N)
+router.post('/webhook/v2', postConnectToN8N)
 
 module.exports = router
