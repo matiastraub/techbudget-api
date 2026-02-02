@@ -5,7 +5,8 @@ const asyncHandler = require('../middleware/async')
 // @route   GET /api/vehiculos/chileautos
 // @access  Private
 exports.test = asyncHandler(async (req, res) => {
-  res.status(200).json({ success: true, msg: 'JMD funcionando' })
+  const dealer = req?.params?.dealer
+  res.status(200).json({ success: true, msg: `${dealer} funcionando` })
 })
 
 // @desc    Post Chile autos Test
@@ -14,24 +15,13 @@ exports.test = asyncHandler(async (req, res) => {
 exports.webhook = async (req, res) => {
   try {
     let data = {}
-
-    if (process.env['CHILEAUTOS-SELLER-ID'] === req?.body?.sellerId) {
+    const sellerId = req?.body?.sellerId || req?.body?.seller_id
+    if (process.env['CHILEAUTOS-SELLER-ID'] === sellerId) {
       data = {
         success: true,
         data: {
-          sellerId: req.body.sellerId,
+          sellerId,
           method: 'body',
-          sender: 'Chile Autos',
-        },
-      }
-      return res.status(200).json(data)
-    }
-    if (process.env['CHILEAUTOS-SELLER-ID'] === req?.params?.sellerId) {
-      data = {
-        success: true,
-        data: {
-          sellerId: req.params.sellerId,
-          method: 'params',
           sender: 'Chile Autos',
         },
       }
