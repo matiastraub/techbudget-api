@@ -21,8 +21,9 @@ exports.webhook = async (req, res) => {
         success: true,
         data: {
           sellerId,
-          method: 'body',
+          method: 'post',
           sender: 'Chile Autos',
+          body: req.body,
         },
       }
       return res.status(200).json(data)
