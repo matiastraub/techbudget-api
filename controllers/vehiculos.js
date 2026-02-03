@@ -15,12 +15,10 @@ exports.test = asyncHandler(async (req, res) => {
 exports.webhook = async (req, res) => {
   try {
     let data = {}
-    const sellerId = req?.body?.sellerId || req?.body?.seller_id
-    if (process.env['CHILEAUTOS-SELLER-ID'] === sellerId) {
+    if (req?.body) {
       data = {
         success: true,
         data: {
-          sellerId,
           method: 'post',
           sender: 'Chile Autos',
           body: req.body,
